@@ -208,72 +208,56 @@ tools: Task, TodoWrite, Memory  # Task tool enables agent creation
 
 ## MD-Based Dynamic Agent System
 
-Pantheon gods can now create custom agents by leveraging Claude-Flow's 54+ pre-defined agents as templates. This powerful system enables unlimited customization while maintaining execution compatibility.
+Pantheon gods can create custom agents by leveraging Claude-Flow's 54+ pre-defined agents as templates. This powerful system enables unlimited customization while maintaining execution compatibility.
 
-### Creating Custom Agents
+📚 **[Complete MD System Documentation](gods/README.md)** | 🔧 **[Technical Guide](docs/implementation/MD_BASED_AGENT_SYSTEM.md)** | 🧪 **[Test Suite](test-md-system.js)**
 
-#### Simple Adaptation
+### Quick Examples
+
+#### Simple Agent Adaptation
 ```javascript
 // Create a blockchain-focused developer
 const blockchainDev = await hephaestus.createSubAgent('blockchain-dev', {
   baseAgent: 'coder',  // Use Claude-Flow's coder as base
   adaptations: {
     focus: 'Smart contract development',
-    expertise: ['Solidity', 'Web3', 'DeFi patterns'],
-    additionalInstructions: 'Always prioritize security and gas optimization'
+    expertise: ['Solidity', 'Web3', 'DeFi patterns']
   }
 });
 ```
 
-#### Combining Multiple Agents
+#### Combine Multiple Agents
 ```javascript
 // Create a full-stack developer by merging agents
 const fullStackDev = await zeus.createSubAgent('fullstack-dev', {
-  baseAgents: ['backend-dev', 'spec-mobile-react-native'],
-  mergeStrategy: 'union',  // Combine all capabilities
-  adaptations: {
-    name: 'Full-Stack Developer',
-    focus: 'End-to-end web application development'
-  }
+  baseAgents: ['backend-dev', 'frontend-dev'],
+  mergeStrategy: 'union'  // Combine all capabilities
 });
 ```
 
-### Agent Discovery
+#### Agent Discovery
 ```javascript
-// Find suitable base agents for a task
+// Find suitable agents for a task
 const recommendations = await zeus.discoverAgentsForTask(
   'Build a real-time chat application'
 );
-
-// Find agents by capability
-const testers = await zeus.findAgentsByCapability('test');
 ```
 
-### Predefined Specializations
-```javascript
-// Use built-in specializations
-const specialists = {
-  blockchain: await god.createSpecializedAgent('blockchain-developer'),
-  ml: await god.createSpecializedAgent('ml-engineer'),
-  fullstack: await god.createSpecializedAgent('full-stack-developer'),
-  security: await god.createSpecializedAgent('security-auditor')
-};
-```
+### Key Features
 
-### Merge Strategies
+- 🤖 **54+ Base Agents**: Leverage Claude-Flow's entire agent library
+- 🔄 **5 Merge Strategies**: union, intersection, weighted, best-features, capabilities-union
+- 🔍 **Smart Discovery**: AI-powered agent recommendations
+- 🏗️ **10+ Specializations**: Pre-configured expert agents
+- ⚡ **Fast Loading**: ~50ms to load all agents with caching
+- ✅ **Fully Tested**: Comprehensive test suite included
 
-- **union**: Combines all features from all agents
-- **intersection**: Only keeps common features
-- **weighted**: Prioritizes certain agents
-- **best-features**: Cherry-picks the best from each
-- **capabilities-union**: Organizes by capability domains
+### Learn More
 
-### Key Benefits
-
-1. **Leverage Existing Knowledge**: Use battle-tested Claude-Flow agents
-2. **Infinite Customization**: Adapt agents for any specific need
-3. **Maintain Compatibility**: All agents execute through Claude-Flow
-4. **Dynamic Teams**: Create specialized teams on demand
+- **[Gods README](gods/README.md)** - Complete guide with all features
+- **[Implementation Details](docs/implementation/MD_BASED_AGENT_SYSTEM.md)** - Technical architecture
+- **[Simple Explanation](docs/explanations/SIMPLEST_EXPLANATION.md)** - Easy-to-understand overview
+- **[Examples](docs/examples/)** - Hands-on tutorials
 
 ## MCP Tool Assignments
 
