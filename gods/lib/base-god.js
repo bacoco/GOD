@@ -1,6 +1,14 @@
 import { EventEmitter } from 'events';
 import { getSafetyManager } from './agent-safety.js';
+import { AgentMDLoader } from './agent-md-loader.js';
+import { AgentAdapter } from './agent-adapter.js';
+import { AgentMDGenerator } from './agent-md-generator.js';
+import path from 'path';
 
+/**
+ * Enhanced BaseGod with MD-based dynamic agent creation
+ * Extends the original BaseGod with ability to load and adapt Claude-Flow agents
+ */
 export class BaseGod extends EventEmitter {
   constructor(options = {}) {
     super();
@@ -34,6 +42,17 @@ export class BaseGod extends EventEmitter {
     // Safety manager
     this.safetyManager = options.safetyManager || getSafetyManager();
     
+    // MD-based agent system (NEW)
+    const claudeFlowPath = options.claudeFlowPath || path.join(__dirname, '../../../claude-flow');
+    this.mdLoader = new AgentMDLoader(claudeFlowPath);
+    this.mdAdapter = new AgentAdapter();
+    this.mdGenerator = new AgentMDGenerator();
+    
+    // Initialize MD loader in background
+    this.mdLoader.initialize().catch(err => {
+      console.warn(`Failed to initialize MD loader for ${this.name}:`, err.message);
+    });
+    
     // Performance tracking
     this.metrics = {
       tasksCompleted: 0,
@@ -43,19 +62,20 @@ export class BaseGod extends EventEmitter {
       subAgentsCreated: 0,
       aiOrchestrations: 0,
       jsOrchestrations: 0,
+      mdAgentsCreated: 0, // NEW
       startTime: Date.now()
     };
   }
   
   getDefaultAllowedGods() {
-    // Default allowed gods for agent creation
+    // Default allowed gods based on this god's role
     const defaults = {
-      zeus: ['hephaestus', 'apollo', 'themis', 'aegis', 'daedalus', 'prometheus'],
-      janus: ['all'], // Janus can create any god
+      zeus: ['hephaestus', 'apollo', 'themis', 'aegis', 'daedalus', 'prometheus', 'athena', 'hermes'],
+      janus: 'all', // Can create any god
       hephaestus: ['code-reviewer', 'themis'],
-      apollo: ['harmonia', 'iris', 'calliope'],
-      daedalus: ['hephaestus', 'apollo'],
-      prometheus: ['athena', 'hermes']
+      apollo: ['iris', 'argus', 'harmonia'],
+      themis: ['aegis'],
+      daedalus: ['hephaestus', 'apollo']
     };
     
     return defaults[this.name] || [];
@@ -81,30 +101,91 @@ export class BaseGod extends EventEmitter {
     // Default implementation - override in specific god classes
   }
 
-  async createSubAgent(type, specialization = {}) {
+  /**
+   * Enhanced createSubAgent with MD support
+   * Now supports baseAgent and baseAgents for Claude-Flow integration
+   */
+  async createSubAgent(type, config = {}) {
     // Check safety limits
     const safetyCheck = this.safetyManager.canCreateAgent(this.id, this.agentCreationLimits);
     if (!safetyCheck.allowed) {
       throw new Error(`Cannot create sub-agent: ${safetyCheck.reason}`);
     }
     
+    let agentSpec = { 
+      type, 
+      name: config.name || type,
+      createdBy: this.name,
+      ...config 
+    };
+    
+    // NEW: Load and adapt base agent if specified
+    if (config.baseAgent) {
+      try {
+        const baseAgent = await this.mdLoader.getAgent(config.baseAgent);
+        if (baseAgent) {
+          agentSpec = await this.mdAdapter.adaptAgent(baseAgent, config);
+          agentSpec.type = type; // Preserve the requested type
+          this.metrics.mdAgentsCreated++;
+        } else {
+          console.warn(`Base agent '${config.baseAgent}' not found, creating custom agent`);
+        }
+      } catch (error) {
+        console.warn(`Failed to load base agent '${config.baseAgent}':`, error.message);
+      }
+    }
+    
+    // NEW: Combine multiple agents if specified
+    if (config.baseAgents && config.baseAgents.length > 0) {
+      try {
+        const baseAgents = await Promise.all(
+          config.baseAgents.map(name => this.mdLoader.getAgent(name))
+        );
+        const validAgents = baseAgents.filter(Boolean);
+        
+        if (validAgents.length > 0) {
+          agentSpec = await this.mdAdapter.combineAgents(
+            validAgents, 
+            { 
+              name: config.name || type,
+              mergeStrategy: config.mergeStrategy || 'union',
+              ...config 
+            }
+          );
+          agentSpec.type = type; // Preserve the requested type
+          this.metrics.mdAgentsCreated++;
+        }
+      } catch (error) {
+        console.warn(`Failed to combine agents:`, error.message);
+      }
+    }
+    
+    // NEW: Generate custom MD if we have adaptations
+    if (agentSpec.instructions && (config.baseAgent || config.baseAgents)) {
+      const customMD = await this.mdGenerator.generateAgentMD(agentSpec);
+      agentSpec.instructions = customMD;
+    }
+    
     // Determine if this sub-agent should have agent creation capabilities
-    const shouldIncludeTaskTool = this.shouldAllowAgentCreation(type, specialization);
+    const shouldIncludeTaskTool = this.shouldAllowAgentCreation(type, agentSpec);
     
     // Prepare tools based on orchestration mode
-    const tools = [...(specialization.tools || [])];
+    const tools = [...(agentSpec.tools || [])];
     if (shouldIncludeTaskTool && !tools.includes('Task')) {
       tools.push('Task');
     }
     
     // Add safety limits and orchestration config
     const enhancedSpecialization = {
-      ...specialization,
+      ...agentSpec,
       tools,
       limits: this.agentCreationLimits,
-      orchestrationMode: specialization.orchestrationMode || this.orchestrationMode,
+      orchestrationMode: agentSpec.orchestrationMode || this.orchestrationMode,
       parentGod: this.name,
-      allowedGods: specialization.allowedGods || this.agentCreationLimits.allowedGods
+      allowedGods: agentSpec.allowedGods || this.agentCreationLimits.allowedGods,
+      // NEW: Track heritage for debugging
+      heritage: agentSpec.heritage || (config.baseAgent ? [config.baseAgent] : []),
+      isCustom: !!(config.baseAgent || config.baseAgents)
     };
     
     // Create the sub-agent
@@ -114,7 +195,8 @@ export class BaseGod extends EventEmitter {
     this.safetyManager.registerAgent(subAgent.id, this.id, {
       type,
       god: this.name,
-      hasTaskTool: tools.includes('Task')
+      hasTaskTool: tools.includes('Task'),
+      isCustom: enhancedSpecialization.isCustom
     });
     
     // Track internally
@@ -126,10 +208,78 @@ export class BaseGod extends EventEmitter {
       subAgentId: subAgent.id,
       type,
       specialization: enhancedSpecialization,
-      hasAgentCreation: shouldIncludeTaskTool
+      hasAgentCreation: shouldIncludeTaskTool,
+      isCustom: enhancedSpecialization.isCustom
     });
     
     return subAgent;
+  }
+  
+  /**
+   * NEW: Discover available base agents for a task
+   */
+  async discoverAgentsForTask(taskDescription) {
+    return await this.mdLoader.recommendAgentsForTask(taskDescription);
+  }
+  
+  /**
+   * NEW: Get agent by capability
+   */
+  async findAgentsByCapability(capability) {
+    return await this.mdLoader.findAgentsByCapability(capability);
+  }
+  
+  /**
+   * NEW: Create specialized agent presets
+   */
+  async createSpecializedAgent(specialization, config = {}) {
+    // Predefined specializations
+    const specializations = {
+      'blockchain-developer': {
+        baseAgent: 'coder',
+        adaptations: {
+          focus: 'Blockchain and smart contract development',
+          expertise: ['Solidity', 'Web3', 'DeFi patterns'],
+          tools: ['github', 'foundry'],
+          personality: { traits: ['security-focused', 'detail-oriented'] }
+        }
+      },
+      'ml-engineer': {
+        baseAgents: ['coder', 'data-ml-model'],
+        mergeStrategy: 'capabilities-union',
+        adaptations: {
+          focus: 'Machine learning and data science',
+          expertise: ['Python', 'TensorFlow', 'MLOps'],
+          tools: ['github', 'desktop-commander']
+        }
+      },
+      'full-stack-developer': {
+        baseAgents: ['backend-dev', 'spec-mobile-react-native'],
+        mergeStrategy: 'best-features',
+        adaptations: {
+          focus: 'Full-stack web development',
+          expertise: ['React', 'Node.js', 'Database design']
+        }
+      },
+      'security-auditor': {
+        baseAgents: ['security-manager', 'tester'],
+        mergeStrategy: 'union',
+        adaptations: {
+          focus: 'Security auditing and vulnerability assessment',
+          tools: ['github', 'security-tools']
+        }
+      }
+    };
+    
+    const preset = specializations[specialization];
+    if (!preset) {
+      throw new Error(`Unknown specialization: ${specialization}`);
+    }
+    
+    return await this.createSubAgent(
+      specialization,
+      { ...preset.adaptations, ...preset, ...config }
+    );
   }
   
   shouldAllowAgentCreation(type, specialization) {
@@ -249,171 +399,142 @@ export class BaseGod extends EventEmitter {
     this.activeTaskCount++;
     
     try {
-      // Override in subclasses for specific task execution
-      const result = await this.onExecuteTask(task);
+      // Override in subclasses
+      const result = await this.performTask(task);
       
       this.metrics.tasksCompleted++;
-      return result;
+      return {
+        success: true,
+        result
+      };
     } catch (error) {
-      this.metrics.tasksFailed++;
-      throw error;
+      this.metrics.tasksFailured++;
+      return {
+        success: false,
+        error: error.message
+      };
     } finally {
       this.activeTaskCount--;
     }
   }
 
   // Override in subclasses
-  async onExecuteTask(task) {
-    return {
-      success: true,
-      result: `Task executed by ${this.name}`,
-      task
-    };
+  async performTask(task) {
+    return `Task completed by ${this.name}`;
   }
 
   async handleQuery(query) {
     // Override in subclasses
     return {
       response: `Query handled by ${this.name}`,
-      query
+      data: {}
     };
   }
 
   async executeCommand(command) {
-    // Override in subclasses
+    // Built-in commands
+    switch (command.name) {
+      case 'status':
+        return this.getStatus();
+      case 'metrics':
+        return this.getMetrics();
+      case 'list-subagents':
+        return this.listSubAgents();
+      default:
+        // Custom commands in subclasses
+        return await this.handleCustomCommand(command);
+    }
+  }
+
+  async handleCustomCommand(command) {
     return {
-      executed: true,
-      command,
-      result: `Command executed by ${this.name}`
+      error: `Unknown command: ${command.name}`
     };
   }
 
-  async sendMessage(to, content, options = {}) {
+  async sendMessage(recipient, content, options = {}) {
+    if (!this.messenger) {
+      throw new Error('No messenger available');
+    }
+    
+    const message = await this.messenger.send(this.name, recipient, content, options);
     this.metrics.messagesSent++;
-    return await this.messenger.send(this.name, to, content, options);
+    
+    return message;
   }
 
-  async broadcastMessage(content, options = {}) {
-    return await this.messenger.broadcast(this.name, content, options);
-  }
-
-  async requestFromZeus(request, options = {}) {
-    return await this.messenger.requestFromZeus(this.name, request, options);
-  }
-
-  async collaborateWith(godNames, task) {
-    const collaborationId = crypto.randomUUID();
-    
-    // Send collaboration request to specified gods
-    const requests = godNames.map(godName => 
-      this.sendMessage(godName, {
-        type: 'collaboration',
-        collaborationId,
-        task,
-        initiator: this.name
-      }, { requiresResponse: true })
-    );
-    
-    const responses = await Promise.allSettled(requests);
-    
+  getStatus() {
     return {
-      collaborationId,
-      participants: godNames,
-      responses: responses.map((r, i) => ({
-        god: godNames[i],
-        status: r.status,
-        response: r.status === 'fulfilled' ? r.value : r.reason
-      }))
+      god: this.name,
+      id: this.id,
+      status: this.status,
+      activeTaskCount: this.activeTaskCount,
+      subAgentCount: this.subAgents.size,
+      metrics: this.getMetrics()
     };
+  }
+
+  getMetrics() {
+    return {
+      ...this.metrics,
+      uptime: Date.now() - this.metrics.startTime,
+      subAgents: {
+        active: this.subAgents.size,
+        created: this.metrics.subAgentsCreated,
+        mdBased: this.metrics.mdAgentsCreated
+      }
+    };
+  }
+
+  listSubAgents() {
+    const agents = [];
+    
+    for (const [id, agent] of this.subAgents) {
+      agents.push({
+        id,
+        type: agent.type,
+        status: agent.status,
+        specialization: agent.specialization,
+        isCustom: agent.specialization?.isCustom,
+        heritage: agent.specialization?.heritage
+      });
+    }
+    
+    return agents;
   }
 
   // Memory management
-  async remember(key, value) {
+  remember(key, value) {
     this.memory.set(key, {
       value,
       timestamp: Date.now()
     });
   }
 
-  async recall(key) {
+  recall(key) {
     const memory = this.memory.get(key);
     return memory ? memory.value : null;
   }
 
-  async forget(key) {
-    return this.memory.delete(key);
+  forget(key) {
+    this.memory.delete(key);
   }
 
-  // Status and metrics
-  getStatus() {
-    return {
-      id: this.id,
-      name: this.name,
-      status: this.status,
-      activeTaskCount: this.activeTaskCount,
-      subAgentCount: this.subAgents.size,
-      metrics: this.metrics,
-      uptime: Date.now() - this.metrics.startTime
-    };
-  }
-
-  getCapabilities() {
-    return {
-      name: this.name,
-      role: this.config.role,
-      capabilities: this.capabilities,
-      responsibilities: this.responsibilities,
-      tools: this.tools,
-      canCreateSubAgents: true,
-      canCollaborate: true
-    };
-  }
-
-  getActiveAgents() {
-    return Array.from(this.subAgents.values()).filter(a => a.status === 'active');
-  }
-
-  // Helper methods for subclasses
-  async processSubAgentResult(subAgent, result) {
-    // Override in subclasses to handle sub-agent results
-    this.emit('god:subagent-result', {
-      godName: this.name,
-      subAgentId: subAgent.id,
-      result
-    });
-  }
-
-  async handleSubAgentError(subAgent, error) {
-    // Override in subclasses to handle sub-agent errors
-    this.emit('god:subagent-error', {
-      godName: this.name,
-      subAgentId: subAgent.id,
-      error
-    });
-  }
-
-  // Cleanup
-  async dismiss() {
-    this.status = 'dismissing';
+  // Lifecycle
+  async shutdown() {
+    this.status = 'shutting-down';
     
     // Terminate all sub-agents
     for (const [id] of this.subAgents) {
       this.terminateSubAgent(id);
     }
     
-    // Clear memory
+    // Clean up
     this.memory.clear();
+    this.removeAllListeners();
     
-    // Custom cleanup
-    await this.onDismiss();
-    
-    this.status = 'dismissed';
-    this.emit('god:dismissed', { name: this.name });
-  }
-
-  // Override in subclasses for custom cleanup
-  async onDismiss() {
-    // Default implementation
+    this.status = 'terminated';
+    this.emit('god:shutdown', { name: this.name });
   }
 }
 

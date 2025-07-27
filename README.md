@@ -16,6 +16,8 @@ Pantheon transforms Claude-Flow into a divine orchestration system where each "g
 ## Features
 
 - 🌟 **Dynamic Agent Creation**: Each god can spawn unlimited specialized sub-agents
+- 🤖 **MD-Based Agent Adaptation**: Create custom agents by adapting Claude-Flow's 54+ agents
+- 🔄 **Agent Combination**: Merge multiple agents to create powerful hybrids
 - 💬 **Inter-God Communication**: Divine Messenger system with priority routing
 - 🎯 **Task Orchestration**: Zeus analyzes complexity and assigns appropriate gods
 - ⚡ **Parallel Execution**: Multiple gods working simultaneously on tasks
@@ -204,6 +206,75 @@ tools: Task, TodoWrite, Memory  # Task tool enables agent creation
 ---
 ```
 
+## MD-Based Dynamic Agent System
+
+Pantheon gods can now create custom agents by leveraging Claude-Flow's 54+ pre-defined agents as templates. This powerful system enables unlimited customization while maintaining execution compatibility.
+
+### Creating Custom Agents
+
+#### Simple Adaptation
+```javascript
+// Create a blockchain-focused developer
+const blockchainDev = await hephaestus.createSubAgent('blockchain-dev', {
+  baseAgent: 'coder',  // Use Claude-Flow's coder as base
+  adaptations: {
+    focus: 'Smart contract development',
+    expertise: ['Solidity', 'Web3', 'DeFi patterns'],
+    additionalInstructions: 'Always prioritize security and gas optimization'
+  }
+});
+```
+
+#### Combining Multiple Agents
+```javascript
+// Create a full-stack developer by merging agents
+const fullStackDev = await zeus.createSubAgent('fullstack-dev', {
+  baseAgents: ['backend-dev', 'spec-mobile-react-native'],
+  mergeStrategy: 'union',  // Combine all capabilities
+  adaptations: {
+    name: 'Full-Stack Developer',
+    focus: 'End-to-end web application development'
+  }
+});
+```
+
+### Agent Discovery
+```javascript
+// Find suitable base agents for a task
+const recommendations = await zeus.discoverAgentsForTask(
+  'Build a real-time chat application'
+);
+
+// Find agents by capability
+const testers = await zeus.findAgentsByCapability('test');
+```
+
+### Predefined Specializations
+```javascript
+// Use built-in specializations
+const specialists = {
+  blockchain: await god.createSpecializedAgent('blockchain-developer'),
+  ml: await god.createSpecializedAgent('ml-engineer'),
+  fullstack: await god.createSpecializedAgent('full-stack-developer'),
+  security: await god.createSpecializedAgent('security-auditor')
+};
+```
+
+### Merge Strategies
+
+- **union**: Combines all features from all agents
+- **intersection**: Only keeps common features
+- **weighted**: Prioritizes certain agents
+- **best-features**: Cherry-picks the best from each
+- **capabilities-union**: Organizes by capability domains
+
+### Key Benefits
+
+1. **Leverage Existing Knowledge**: Use battle-tested Claude-Flow agents
+2. **Infinite Customization**: Adapt agents for any specific need
+3. **Maintain Compatibility**: All agents execute through Claude-Flow
+4. **Dynamic Teams**: Create specialized teams on demand
+
 ## MCP Tool Assignments
 
 Each god has access to specific MCP tools:
@@ -239,8 +310,18 @@ const gods = pantheon.getGods();
 ### God API
 
 ```javascript
-// Create sub-agent
-const agent = await god.createSubAgent(type, specialization);
+// Create sub-agent (enhanced with MD support)
+const agent = await god.createSubAgent(type, config);
+// config can include: baseAgent, baseAgents, adaptations, mergeStrategy
+
+// Create specialized agent
+const specialist = await god.createSpecializedAgent('blockchain-developer');
+
+// Discover agents for task
+const agents = await god.discoverAgentsForTask('Build chat app');
+
+// Find agents by capability
+const testers = await god.findAgentsByCapability('test');
 
 // Send message
 await god.sendMessage(recipient, content, options);
