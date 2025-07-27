@@ -1,0 +1,165 @@
+workflow:
+  id: analysis-to-implementation
+  name: Analysis to Implementation Workflow
+  description: >
+    Complete workflow from initial analysis through implementation planning.
+    Coordinates multiple agents to provide comprehensive solution design.
+  type: comprehensive
+  agents_involved:
+    - orchestrator
+    - architect
+    - developer
+    - qa
+    - security  # conditional based on complexity
+  estimated_duration: 2-4 hours
+  
+sequence:
+  - step: 1
+    name: Initial Analysis
+    agent: orchestrator
+    action: Analyze task complexity
+    task: analyze-complexity
+    creates:
+      - complexity-analysis.md
+    decision_point:
+      condition: complexity_score > 7
+      true_path: include_security
+      false_path: continue
+    notes: Determines which agents to involve
+
+  - step: 2
+    name: Architecture Design
+    agent: architect  
+    action: Design system architecture
+    requires:
+      - complexity-analysis.md
+    commands:
+      - "*analyze"
+      - "*create-architecture"
+    creates:
+      - architecture-design.md
+      - technology-decisions.md
+    handoff_message: |
+      Architecture design complete. Key decisions:
+      - {architecture_pattern}
+      - {technology_stack}
+      - {scalability_approach}
+
+  - step: 3
+    name: Security Assessment
+    agent: security
+    action: Threat modeling and security design
+    condition: include_security
+    requires:
+      - architecture-design.md
+    commands:
+      - "*threat-model"
+      - "*auth-design"
+    creates:
+      - threat-model.md
+      - security-requirements.md
+    handoff_message: |
+      Security assessment complete. Critical requirements:
+      - {authentication_method}
+      - {authorization_model}
+      - {data_protection}
+
+  - step: 4
+    name: Implementation Planning
+    agent: developer
+    action: Create detailed implementation plan
+    requires:
+      - architecture-design.md
+      - security-requirements.md  # if exists
+    commands:
+      - "*implement"
+      - "*tech-debt"
+    creates:
+      - implementation-plan.md
+      - task-breakdown.md
+    handoff_message: |
+      Implementation plan ready. Highlights:
+      - {estimated_effort}
+      - {key_challenges}
+      - {dependencies}
+
+  - step: 5
+    name: Quality Strategy
+    agent: qa
+    action: Design test strategy and quality metrics
+    requires:
+      - implementation-plan.md
+    commands:
+      - "*test-strategy"
+      - "*quality-metrics"
+    creates:
+      - test-strategy.md
+      - quality-metrics.md
+    handoff_message: |
+      Quality strategy defined. Focus areas:
+      - {test_priorities}
+      - {automation_targets}
+      - {risk_areas}
+
+  - step: 6
+    name: Final Review
+    agent: orchestrator
+    action: Synthesize all artifacts and recommendations
+    requires:
+      - all_previous_artifacts
+    creates:
+      - executive-summary.md
+      - next-steps.md
+
+decision_points:
+  include_security:
+    description: Whether to include security specialist
+    criteria:
+      - Complexity score > 7
+      - Handles sensitive data
+      - External integrations
+      - Authentication required
+    
+  architecture_complexity:
+    description: Level of architectural detail needed
+    options:
+      simple: Basic component design
+      moderate: Detailed component interactions
+      complex: Full system architecture with all integrations
+
+handoff_templates:
+  architect_to_developer: |
+    Architecture complete. I've designed a {pattern} architecture using {stack}.
+    Key considerations for implementation:
+    - {consideration_1}
+    - {consideration_2}
+    Review the architecture-design.md for full details.
+    
+  developer_to_qa: |
+    Implementation plan ready. Expected delivery in {timeline}.
+    High-risk areas for testing:
+    - {risk_1}
+    - {risk_2}
+    See implementation-plan.md for complete breakdown.
+
+artifacts:
+  storage_path: docs/baco/workflows/{workflow_id}/{timestamp}
+  naming_pattern: "{step_number}-{agent}-{artifact_type}.md"
+  
+completion_criteria:
+  - All required artifacts created
+  - No blocking issues identified
+  - Clear next steps defined
+  - Effort estimates provided
+
+success_metrics:
+  - Completeness of analysis
+  - Clarity of recommendations
+  - Actionability of plans
+  - Risk identification coverage
+
+workflow_options:
+  allow_skip_steps: true
+  require_confirmation: true
+  save_checkpoints: true
+  parallel_execution: false

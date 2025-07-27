@@ -1,0 +1,99 @@
+# Pantheon Configuration
+# AI Agent System based on Anthropic Sub-Agents
+
+# System settings
+system:
+  name: "Pantheon"
+  version: "2.0"
+  description: "Where gods build software"
+  
+# Documentation
+documentation:
+  contributing: ".claude/CONTRIBUTING.md"
+  getting_started: ".claude/GETTING_STARTED.md"
+  readme: ".claude/README.md"
+  
+# Testing
+testing:
+  enabled: true
+  path: ".claude/tests"
+  framework: "jest"
+  coverage_threshold: 80
+  
+# Agent settings
+agents:
+  # Default orchestrator
+  default: "zeus"
+  
+  # Context isolation
+  isolated_contexts: true
+  
+  # Agent location
+  path: ".claude/agents"
+  
+  # Auto-routing
+  auto_routing:
+    enabled: true
+    confidence_threshold: 0.8
+    
+# Tool permissions (can be overridden per agent)
+default_tools:
+  - desktop-commander
+  - github
+  - browsermcp
+  - claude-task-master
+  - context7
+
+# Workflow settings
+workflows:
+  # Enable multi-agent workflows
+  enabled: true
+  
+  # State management
+  persist_state: true
+  
+  # Handoff templates
+  use_handoff_templates: true
+
+# Agent capabilities
+capabilities:
+  # Enable smart routing based on task analysis
+  smart_routing: true
+  
+  # Enable agent collaboration
+  collaboration: true
+  
+  # Enable context preservation across sessions
+  context_preservation: false
+
+# Commands
+commands:
+  # Primary command for agent management
+  primary: "/agents"
+  
+  # Shortcuts
+  shortcuts:
+    orchestrate: "/orchestrate"
+    analyze: "/analyze"
+    
+# Logging
+logging:
+  # Log agent interactions
+  enabled: true
+  
+  # Log location
+  path: ".claude/logs"
+  
+  # Log level
+  level: "info"
+
+# Development
+development:
+  # Show agent selection reasoning
+  show_routing_logic: false
+  
+  # Verbose command output
+  verbose: false
+  
+  # Debug mode
+  debug: false
