@@ -48,14 +48,17 @@ export class BaseGod extends EventEmitter {
     this.safetyManager = options.safetyManager || getSafetyManager();
     
     // MD-based agent system (NEW)
-    const claudeFlowPath = options.claudeFlowPath || path.join(__dirname, '../../../claude-flow');
+    const claudeFlowPath = options.claudeFlowPath || path.join(__dirname, '../../claude-flow');
     this.mdLoader = new AgentMDLoader(claudeFlowPath);
     this.mdAdapter = new AgentAdapter();
     this.mdGenerator = new AgentMDGenerator();
     
     // Initialize MD loader in background
     this.mdLoader.initialize().catch(err => {
-      console.warn(`Failed to initialize MD loader for ${this.name}:`, err.message);
+      // Only log in debug mode - these are non-critical warnings
+      if (process.env.DEBUG || process.env.VERBOSE) {
+        console.warn(`Failed to initialize MD loader for ${this.name}:`, err.message);
+      }
     });
     
     // Performance tracking

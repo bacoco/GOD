@@ -172,7 +172,7 @@ const mlTeam = await Promise.all(
 
 ## Testing
 
-The system includes comprehensive tests (`test-md-system.js`) that verify:
+The system includes comprehensive tests (`tests/test-md-system.js`) that verify:
 - Agent loading and indexing
 - Custom agent creation
 - Agent combination with all merge strategies

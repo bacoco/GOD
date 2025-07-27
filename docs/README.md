@@ -40,7 +40,7 @@ This directory contains all documentation for the Pantheon God Agent System.
 ### For Conversational Features ✨ NEW!
 1. [Conversational Guide](conversational/README.md) - Complete conversational system documentation
 2. Run `node examples/conversational-demo.js` - Interactive demo
-3. Run `node test-conversational-flow.js` - See gods talking to each other
+3. Run `node tests/test-conversational-flow.js` - See gods talking to each other
 
 ### For Understanding the System
 1. [VISUAL_FLOW.md](explanations/VISUAL_FLOW.md) - See how it works
@@ -56,6 +56,8 @@ This directory contains all documentation for the Pantheon God Agent System.
 ## 📖 Additional Documentation
 
 - Main README: [../README.md](../README.md)
+- Project Structure: [../PROJECT_STRUCTURE.md](../PROJECT_STRUCTURE.md)
+- Claude Code Usage: [../CLAUDE_CODE_USAGE.md](../CLAUDE_CODE_USAGE.md)
 - God-specific docs: [../gods/docs/](../gods/docs/)
 - API documentation: See implementation docs
 

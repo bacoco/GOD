@@ -41,7 +41,7 @@ const mlEngineer = await zeus.createSpecializedAgent('ml-engineer');
 ### Tutorials & Examples
 - **[Quick Demo](../docs/examples/QUICK_DEMO.md)** - 5-minute hands-on demo
 - **[Complete Example](../docs/examples/COMPLETE_EXAMPLE.md)** - Build an e-commerce platform
-- **[Test Script](../test-md-system.js)** - See the system in action
+- **[Test Script](../tests/test-md-system.js)** - See the system in action
 
 ## 🔧 Key Components
 
@@ -145,7 +145,7 @@ Verify the system works correctly:
 
 ```bash
 # Run comprehensive test suite
-node test-md-system.js
+node tests/test-md-system.js
 
 # Expected output:
 # ✅ 28 tests passed
@@ -209,7 +209,7 @@ agent = await god.evolveAgent(agent, {
 To add new features or improvements:
 
 1. Check existing [implementation docs](../docs/implementation/)
-2. Review the [test suite](../test-md-system.js)
+2. Review the [test suite](../tests/test-md-system.js)
 3. Follow the patterns in [core components](lib/)
 4. Update documentation accordingly
 

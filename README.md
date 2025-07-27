@@ -44,7 +44,21 @@ chmod +x launch.js
 
 ## Quick Start
 
-### Launch Pantheon
+### Method 1: Use with Claude Code CLI (Recommended)
+
+```bash
+# Direct command in Claude Code
+node claude-pantheon.js "Build a task management app"
+
+# Or set up alias (one time)
+alias pantheon="$(pwd)/claude-pantheon.js"
+
+# Then use simply
+pantheon "Create a REST API with authentication"
+pantheon "Summon Apollo to design a dashboard"
+```
+
+### Method 2: Launch with Claude-Flow
 
 ```bash
 # Start in interactive mode
@@ -74,6 +88,23 @@ npx claude-flow workflow full-stack-dev
 // Product planning workflow
 npx claude-flow workflow product-planning
 ```
+
+## 🤖 Claude Code Integration (NEW!)
+
+Use Pantheon seamlessly within Claude Code CLI:
+
+```bash
+# Quick usage
+node claude-pantheon.js "Build an e-commerce platform"
+
+# With specific gods
+node claude-pantheon.js "Ask Apollo to design a mobile app"
+
+# See all options
+node claude-pantheon.js help
+```
+
+📚 **[Complete Claude Code Usage Guide](CLAUDE_CODE_USAGE.md)**
 
 ## 💬 Conversational Features (NEW!)
 
@@ -129,7 +160,7 @@ Apollo: "Thank you Zeus. Let's explore the user experience..."
 node examples/conversational-demo.js
 
 # Non-interactive demonstration
-node test-conversational-flow.js
+node tests/test-conversational-flow.js
 ```
 
 📚 **[Complete Conversational Documentation](docs/conversational/README.md)**
@@ -271,7 +302,7 @@ tools: Task, TodoWrite, Memory  # Task tool enables agent creation
 
 Pantheon gods can create custom agents by leveraging Claude-Flow's 54+ pre-defined agents as templates. This powerful system enables unlimited customization while maintaining execution compatibility.
 
-📚 **[Complete MD System Documentation](gods/README.md)** | 🔧 **[Technical Guide](docs/implementation/MD_BASED_AGENT_SYSTEM.md)** | 🧪 **[Test Suite](test-md-system.js)**
+📚 **[Complete MD System Documentation](gods/README.md)** | 🔧 **[Technical Guide](docs/implementation/MD_BASED_AGENT_SYSTEM.md)** | 🧪 **[Test Suite](tests/test-md-system.js)**
 
 ### Quick Examples
 
@@ -424,10 +455,15 @@ export default async function myWorkflow(pantheon, params) {
 ## Testing
 
 ```bash
-# Run tests
+# Run all tests
 npm test
 
-# Run specific test
+# Run specific tests
+node tests/test-md-system.js              # MD system tests
+node tests/test-conversational-system.js  # Conversational tests
+node tests/test-conversational-flow.js    # Integration demo
+
+# Run specific test suite
 npm test -- --grep "Zeus"
 ```
 

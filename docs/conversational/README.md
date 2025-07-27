@@ -509,7 +509,7 @@ console.log(session.timeline.slice(-5));
 ## Next Steps
 
 1. Run the demo: `node examples/conversational-demo.js`
-2. Run tests: `node test-conversational-system.js`
+2. Run tests: `node tests/test-conversational-system.js`
 3. Integrate with your existing gods
 4. Create custom conversational workflows
 5. Build your own god personas
