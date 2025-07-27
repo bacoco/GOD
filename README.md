@@ -368,6 +368,15 @@ npm test
 npm test -- --grep "Zeus"
 ```
 
+## Documentation
+
+For comprehensive documentation, see the [docs/](docs/) directory:
+
+- 📚 [Implementation Details](docs/implementation/) - Technical architecture and plans
+- 🎯 [Examples](docs/examples/) - Hands-on guides and demos
+- 💡 [Explanations](docs/explanations/) - Visual diagrams and simple explanations
+- 📋 [Analysis](docs/analysis/) - Code analysis and improvement plans
+
 ## Contributing
 
 1. Fork the repository
