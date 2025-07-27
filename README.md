@@ -154,6 +154,56 @@ await pantheon.executeWorkflow('design-system', {
 └── claude-flow/           # Extended Claude-Flow
 ```
 
+## Hybrid Orchestration Architecture
+
+Pantheon implements a sophisticated hybrid orchestration system that combines the best of both worlds:
+
+### Orchestration Modes
+
+1. **JS-Only Mode**: Fast, deterministic orchestration through JavaScript
+2. **Hybrid Mode** (Default): Intelligent mode selection based on task complexity
+3. **AI-Driven Mode**: Full AI orchestration using Claude Code sub-agents
+
+### How It Works
+
+#### For Simple Tasks (Complexity ≤ 5)
+```javascript
+// JavaScript orchestration for predictable, fast execution
+zeus.orchestrate("Create a REST endpoint")
+// → Directly spawns Hephaestus
+// → Executes in milliseconds
+// → Fully deterministic
+```
+
+#### For Complex Tasks (Complexity > 5 or High Uncertainty)
+```javascript
+// AI-driven orchestration for adaptive, intelligent execution
+zeus.orchestrate("Build distributed ML system with blockchain")
+// → Creates AI orchestrator sub-agent with Task tool
+// → AI analyzes and spawns multiple specialized gods
+// → Adapts strategy based on progress
+// → Handles unexpected scenarios
+```
+
+### Safety Features
+
+- **Agent Limits**: Maximum 10-20 agents per orchestration
+- **Depth Control**: Maximum 3 levels of agent hierarchy
+- **Rate Limiting**: Prevents runaway agent creation
+- **Resource Monitoring**: Tracks and limits resource usage
+- **Automatic Cleanup**: Removes completed agents
+
+### God Configuration
+
+Each god's markdown file can specify:
+```yaml
+---
+orchestrationMode: hybrid  # or 'js-only', 'ai-driven'
+allowedGods: hephaestus, apollo, themis  # or 'all' for Janus
+tools: Task, TodoWrite, Memory  # Task tool enables agent creation
+---
+```
+
 ## MCP Tool Assignments
 
 Each god has access to specific MCP tools:

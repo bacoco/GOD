@@ -49,6 +49,13 @@ export class Janus extends BaseGod {
     
     // Domain configurations
     this.domainConfigs = new Map();
+    
+    // Override orchestration mode - Janus is always AI-driven
+    this.orchestrationMode = 'ai-driven';
+    
+    // Janus can create any god
+    this.agentCreationLimits.allowedGods = ['all'];
+    this.agentCreationLimits.maxAgents = 20; // Higher limit for meta-orchestration
   }
 
   async onInitialize() {
@@ -236,7 +243,38 @@ export class Janus extends BaseGod {
       stateSync: new Map()
     };
     
-    // Spawn agents based on strategy
+    // For AI-driven orchestration, check if we should delegate to a meta-orchestrator
+    if (this.orchestrationMode === 'ai-driven' && swarmConfig.agents.length > 3) {
+      // Create a meta-orchestrator agent to handle complex swarm creation
+      const metaOrchestrator = await this.createSubAgent('janus-meta-orchestrator', {
+        instructions: this.config.raw,
+        allowAgentCreation: true,
+        task: 'Create and coordinate agent swarm',
+        swarmConfig: swarmConfig,
+        strategy: strategy,
+        constraints: {
+          maxAgents: this.agentCreationLimits.maxAgents,
+          timeout: 600000 // 10 minutes for complex swarms
+        }
+      });
+      
+      // Execute swarm creation through AI orchestrator
+      const result = await this.executeSubAgentTask(metaOrchestrator.id, {
+        command: 'create_swarm',
+        agents: swarmConfig.agents,
+        strategy: strategy,
+        channels: channels
+      });
+      
+      // Clean up orchestrator
+      if (this.safetyManager) {
+        this.safetyManager.unregisterAgent(metaOrchestrator.id);
+      }
+      
+      return result;
+    }
+    
+    // For smaller swarms or JS mode, use traditional approach
     const spawnedAgents = [];
     
     for (const agentConfig of swarmConfig.agents) {

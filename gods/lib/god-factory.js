@@ -54,14 +54,31 @@ export class GodFactory {
 
   async createGod(godName, options = {}) {
     const GodClass = this.godClasses.get(godName) || BaseGod;
-    const config = await this.loadGodConfig(options.config.configPath);
+    
+    // Load config from provided path or default location
+    const configPath = options.config?.configPath || join(this.configDir || join(__dirname, '..', '.claude'), 'agents', `${godName}.md`);
+    const config = await this.loadGodConfig(configPath);
+    
+    // Ensure Task tool is included for AI-driven orchestration
+    if (config.orchestrationMode !== 'js-only' && !config.tools.includes('Task')) {
+      config.tools.push('Task');
+    }
+    
+    // Special handling for certain gods
+    if (godName === 'janus' && config.orchestrationMode === undefined) {
+      config.orchestrationMode = 'ai-driven'; // Janus is always AI-driven
+    }
     
     const god = new GodClass({
       name: godName,
       config,
       ...options,
       pantheon: this.pantheon,
-      factory: this
+      factory: this,
+      // Pass through any safety limits
+      maxAgents: options.maxAgents,
+      maxDepth: options.maxDepth,
+      timeout: options.timeout
     });
     
     return god;
@@ -86,13 +103,54 @@ export class GodFactory {
       capabilities: [],
       tools: [],
       prompts: {},
-      metadata: {}
+      metadata: {},
+      orchestrationMode: 'hybrid', // Default
+      allowedGods: []
     };
     
-    // Extract name
-    const nameMatch = mdContent.match(/^#\s+(.+)/m);
-    if (nameMatch) {
-      config.name = nameMatch[1].trim();
+    // Extract frontmatter if present
+    const frontmatterMatch = mdContent.match(/^---\s*\n([\s\S]*?)\n---/);
+    if (frontmatterMatch) {
+      const frontmatter = frontmatterMatch[1];
+      
+      // Parse tools from frontmatter
+      const toolsLine = frontmatter.match(/tools:\s*(.+)/i);
+      if (toolsLine) {
+        config.tools = toolsLine[1].split(',').map(t => t.trim());
+      }
+      
+      // Parse orchestration mode
+      const orchestrationLine = frontmatter.match(/orchestrationMode:\s*(.+)/i);
+      if (orchestrationLine) {
+        config.orchestrationMode = orchestrationLine[1].trim();
+      }
+      
+      // Parse allowed gods
+      const allowedGodsLine = frontmatter.match(/allowedGods:\s*(.+)/i);
+      if (allowedGodsLine) {
+        const gods = allowedGodsLine[1].trim();
+        config.allowedGods = gods === 'all' ? ['all'] : gods.split(',').map(g => g.trim());
+      }
+      
+      // Parse name from frontmatter
+      const nameLine = frontmatter.match(/name:\s*(.+)/i);
+      if (nameLine) {
+        config.name = nameLine[1].trim();
+      }
+      
+      // Parse description
+      const descLine = frontmatter.match(/description:\s*(.+)/i);
+      if (descLine) {
+        config.metadata.description = descLine[1].trim();
+      }
+    }
+    
+    // Extract name from markdown if not in frontmatter
+    if (!config.name) {
+      const nameMatch = mdContent.match(/^#\s+(.+)/m);
+      if (nameMatch) {
+        config.name = nameMatch[1].trim();
+      }
     }
     
     // Extract role
@@ -121,14 +179,16 @@ export class GodFactory {
         .filter(Boolean);
     }
     
-    // Extract tools
-    const toolsMatch = mdContent.match(/##\s*Tools[:\s]*([\s\S]+?)(?=##|$)/i);
-    if (toolsMatch) {
-      config.tools = toolsMatch[1]
-        .split('\n')
-        .filter(line => line.trim().startsWith('-') || line.trim().startsWith('*'))
-        .map(line => line.replace(/^[\s\-\*]+/, '').trim())
-        .filter(Boolean);
+    // Extract tools from content if not in frontmatter
+    if (config.tools.length === 0) {
+      const toolsMatch = mdContent.match(/##\s*Tools[:\s]*([\s\S]+?)(?=##|$)/i);
+      if (toolsMatch) {
+        config.tools = toolsMatch[1]
+          .split('\n')
+          .filter(line => line.trim().startsWith('-') || line.trim().startsWith('*'))
+          .map(line => line.replace(/^[\s\-\*]+/, '').trim())
+          .filter(Boolean);
+      }
     }
     
     // Extract prompt sections
