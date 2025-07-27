@@ -1,0 +1,36 @@
+{
+  "name": "@pantheon/claude-flow-plugin",
+  "version": "1.0.0",
+  "description": "Pantheon God Agent System - A Claude-Flow plugin with 16 specialized AI gods",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./gods": "./lib/gods/index.js",
+    "./workflows": "./workflows/index.js"
+  },
+  "scripts": {
+    "test": "node --test tests/**/*.test.js",
+    "test:watch": "node --test --watch tests/**/*.test.js",
+    "lint": "eslint lib/**/*.js"
+  },
+  "keywords": [
+    "claude-flow",
+    "plugin",
+    "ai",
+    "agents",
+    "orchestration",
+    "pantheon"
+  ],
+  "author": "Pantheon Team",
+  "license": "MIT",
+  "peerDependencies": {
+    "claude-flow": "^1.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

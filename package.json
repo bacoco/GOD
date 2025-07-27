@@ -1,0 +1,33 @@
+{
+  "name": "pantheon-god-agent-system",
+  "version": "1.0.0",
+  "description": "A divine AI agent orchestration system extending Claude-Flow with 16 specialized god agents",
+  "type": "module",
+  "main": "launch.js",
+  "scripts": {
+    "start": "node launch.js",
+    "dev": "node launch.js --verbose",
+    "test": "cd gods && npm test",
+    "example": "node examples/basic-usage.js"
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "orchestration",
+    "claude-flow",
+    "multi-agent",
+    "workflow"
+  ],
+  "author": "Pantheon Team",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/pantheon.git"
+  }
+}
