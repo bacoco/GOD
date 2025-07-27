@@ -36,8 +36,9 @@ We successfully implemented a comprehensive system that enables Pantheon gods to
 - Includes predefined specializations
 
 ### 5. **Examples & Documentation**
-- **md-based-agents-demo.js**: Comprehensive examples showing all features
-- **MD_BASED_AGENTS_GUIDE.md**: Complete user guide with API reference
+- **test-md-system.js**: Comprehensive test suite validating all features
+- **gods/README.md**: Complete user guide with API reference
+- **MD_BASED_AGENT_SYSTEM.md**: Technical architecture documentation
 
 ## Key Features Implemented
 
