@@ -51,7 +51,15 @@ async function testConversationalSession() {
     logTest('Create conversational session', true);
     
     // Test 2: Add participant
-    const mockGod = { name: 'zeus' };
+    const mockGod = { 
+      name: 'zeus',
+      status: 'active',
+      activeTaskCount: 0,
+      subAgents: new Map(),
+      memory: new Map(),
+      capabilities: ['orchestrate'],
+      orchestrationMode: 'collaborative'
+    };
     session.addParticipant(mockGod, 'orchestrator');
     logTest('Add participant to session', session.participants.has('zeus'));
     
@@ -145,6 +153,12 @@ async function testConversationalAgentFactory() {
     const mockGod = {
       name: 'test-zeus',
       status: 'active',
+      activeTaskCount: 0,
+      subAgents: new Map(),
+      memory: new Map(),
+      capabilities: ['orchestrate', 'create'],
+      orchestrationMode: 'collaborative',
+      activeConversations: new Map(),
       createSubAgent: async (id, config) => ({
         id,
         type: config.baseAgent || 'test',
@@ -219,6 +233,9 @@ async function testConversationalUX() {
     
     // Test 6: Render progress
     const mockSession = {
+      context: {
+        currentPhase: 'Requirements'
+      },
       getCurrentSpeaker: () => 'zeus',
       getProgressPercentage: () => 50,
       getParticipantSummary: () => [
@@ -249,7 +266,15 @@ async function testConversationRecovery() {
     
     // Test 2: Handle agent creation failure
     const mockSession = { id: 'test-session', getDebugReport: async () => ({}) };
-    const mockAgent = { id: 'test-agent' };
+    const mockAgent = { 
+      id: 'test-agent',
+      spec: {
+        adaptations: {
+          focus: 'test',
+          tools: []
+        }
+      }
+    };
     const error = new Error('agent creation failed');
     
     const result = await recovery.handleAgentFailure(
@@ -294,7 +319,15 @@ async function testEnhancedMessenger() {
     logTest('Initialize enhanced messenger', true);
     
     // Test 3: Start conversational session
-    const mockGod = { name: 'zeus' };
+    const mockGod = { 
+      name: 'zeus',
+      status: 'active',
+      activeTaskCount: 0,
+      subAgents: new Map(),
+      memory: new Map(),
+      capabilities: ['orchestrate'],
+      orchestrationMode: 'collaborative'
+    };
     const session = await messenger.startConversationalSession(
       mockGod,
       'Test topic'
@@ -397,6 +430,15 @@ async function testIntegration() {
       pantheon: pantheon
     });
     
+    // Add required properties for zeus
+    zeus.status = 'active';
+    zeus.activeTaskCount = 0;
+    zeus.subAgents = new Map();
+    zeus.memory = new Map();
+    zeus.capabilities = ['orchestrate', 'create', 'delegate'];
+    zeus.orchestrationMode = 'collaborative';
+    zeus.activeConversations = new Map();
+    
     // Mock createSubAgent
     zeus.createSubAgent = async (id, config) => ({
       id,
@@ -435,6 +477,15 @@ async function testIntegration() {
       ux: pantheon.conversationalUX,
       pantheon: pantheon
     });
+    
+    // Add required properties for prometheus
+    prometheus.status = 'active';
+    prometheus.activeTaskCount = 0;
+    prometheus.subAgents = new Map();
+    prometheus.memory = new Map();
+    prometheus.capabilities = ['requirements', 'documentation'];
+    prometheus.orchestrationMode = 'focused';
+    prometheus.activeConversations = new Map();
     
     prometheus.createSubAgent = zeus.createSubAgent;
     await prometheus.initialize();

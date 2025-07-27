@@ -18,7 +18,9 @@ Pantheon transforms Claude-Flow into a divine orchestration system where each "g
 - 🌟 **Dynamic Agent Creation**: Each god can spawn unlimited specialized sub-agents
 - 🤖 **MD-Based Agent Adaptation**: Create custom agents by adapting Claude-Flow's 54+ agents
 - 🔄 **Agent Combination**: Merge multiple agents to create powerful hybrids
-- 💬 **Inter-God Communication**: Divine Messenger system with priority routing
+- 💬 **Conversational AI** ✨ NEW!: Natural dialogue with gods for requirements gathering and planning
+- 🗣️ **Multi-God Conversations**: Seamless handoffs between specialists during conversations
+- 📝 **Auto-Documentation**: Generate PRDs, user journeys, and specs through conversation
 - 🎯 **Task Orchestration**: Zeus analyzes complexity and assigns appropriate gods
 - ⚡ **Parallel Execution**: Multiple gods working simultaneously on tasks
 - 🧠 **Context Preservation**: Maintain state across agent handoffs
@@ -72,6 +74,65 @@ npx claude-flow workflow full-stack-dev
 // Product planning workflow
 npx claude-flow workflow product-planning
 ```
+
+## 💬 Conversational Features (NEW!)
+
+Pantheon gods can now engage in natural conversations with users, making complex project planning and development more intuitive than ever.
+
+### Start a Conversation
+
+```javascript
+// Simple conversation with Zeus
+const conversation = await zeus.converseAbout('Build a SaaS platform');
+
+// Ask follow-up questions
+const response = await conversation.ask('Should it support team collaboration?');
+
+// Get implementation plan
+const summary = await conversation.conclude();
+```
+
+### Multi-God Collaborative Planning
+
+```javascript
+// Full conversational project planning
+import { conversationalProjectPlanning } from './gods/workflows/conversational-planning.js';
+
+const result = await conversationalProjectPlanning(
+  pantheon,
+  'I need an e-commerce platform with AI recommendations',
+  { autoImplement: true }  // Proceed to build after planning
+);
+
+// Result includes:
+// - Generated PRD, user journeys, tech specs
+// - Complete implementation plan
+// - All conversation artifacts
+```
+
+### Natural Handoffs
+
+Gods seamlessly hand off conversations to the right specialists:
+
+```
+You: "I need a mobile app"
+Zeus: "Let me understand your vision..."
+[After gathering requirements]
+Zeus: "I'll hand you to Apollo for the design aspects."
+Apollo: "Thank you Zeus. Let's explore the user experience..."
+```
+
+### Try the Demo
+
+```bash
+# Interactive conversational demo
+node examples/conversational-demo.js
+
+# Non-interactive demonstration
+node test-conversational-flow.js
+```
+
+📚 **[Complete Conversational Documentation](docs/conversational/README.md)**
 
 ## The 16 Gods
 
@@ -316,6 +377,24 @@ await god.collaborateWith(otherGods, task);
 // Memory
 await god.remember(key, value);
 const value = await god.recall(key);
+
+// Conversational Features (NEW!)
+// Start a conversation
+const { session, agent } = await god.startConversation(topic, config);
+
+// Simple conversation interface
+const conversation = await god.converseAbout(topic);
+await conversation.ask('Follow-up question');
+const summary = await conversation.conclude();
+
+// Continue existing conversation
+await god.continueConversation(session);
+
+// Generate documentation from conversation
+const prd = await god.generateDocumentation('PRD', { session });
+
+// Hand off conversation to another god
+await god.handoffConversation(toGod, session, reason);
 ```
 
 ## Development

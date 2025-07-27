@@ -28,9 +28,9 @@ export class ConversationRecovery extends EventEmitter {
           apply: async (context) => {
             // Simplify agent configuration and retry
             const simplifiedConfig = {
-              ...context.config,
+              ...context.agent.spec,
               adaptations: {
-                focus: context.config.adaptations?.focus || 'General assistance'
+                focus: context.agent.spec?.adaptations?.focus || 'General assistance'
               }
             };
             

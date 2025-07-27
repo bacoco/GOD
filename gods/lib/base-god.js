@@ -4,6 +4,11 @@ import { AgentMDLoader } from './agent-md-loader.js';
 import { AgentAdapter } from './agent-adapter.js';
 import { AgentMDGenerator } from './agent-md-generator.js';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /**
  * Enhanced BaseGod with MD-based dynamic agent creation
@@ -79,6 +84,10 @@ export class BaseGod extends EventEmitter {
     };
     
     return defaults[this.name] || [];
+  }
+
+  getCapabilities() {
+    return this.capabilities || ['create', 'orchestrate', 'delegate'];
   }
 
   async initialize() {
