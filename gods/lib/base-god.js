@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { getSafetyManager } from './agent-safety.js';
 
 export class BaseGod extends EventEmitter {
   constructor(options = {}) {
@@ -21,6 +22,18 @@ export class BaseGod extends EventEmitter {
     this.capabilities = this.config.capabilities || [];
     this.responsibilities = this.config.responsibilities || [];
     
+    // Hybrid orchestration configuration
+    this.orchestrationMode = this.config.orchestrationMode || 'hybrid';
+    this.agentCreationLimits = {
+      maxAgents: options.maxAgents || 10,
+      maxDepth: options.maxDepth || 3,
+      timeout: options.timeout || 300000, // 5 minutes
+      allowedGods: this.config.allowedGods || this.getDefaultAllowedGods()
+    };
+    
+    // Safety manager
+    this.safetyManager = options.safetyManager || getSafetyManager();
+    
     // Performance tracking
     this.metrics = {
       tasksCompleted: 0,
@@ -28,8 +41,24 @@ export class BaseGod extends EventEmitter {
       messagesReceived: 0,
       messagesSent: 0,
       subAgentsCreated: 0,
+      aiOrchestrations: 0,
+      jsOrchestrations: 0,
       startTime: Date.now()
     };
+  }
+  
+  getDefaultAllowedGods() {
+    // Default allowed gods for agent creation
+    const defaults = {
+      zeus: ['hephaestus', 'apollo', 'themis', 'aegis', 'daedalus', 'prometheus'],
+      janus: ['all'], // Janus can create any god
+      hephaestus: ['code-reviewer', 'themis'],
+      apollo: ['harmonia', 'iris', 'calliope'],
+      daedalus: ['hephaestus', 'apollo'],
+      prometheus: ['athena', 'hermes']
+    };
+    
+    return defaults[this.name] || [];
   }
 
   async initialize() {
@@ -53,8 +82,42 @@ export class BaseGod extends EventEmitter {
   }
 
   async createSubAgent(type, specialization = {}) {
-    const subAgent = await this.factory.createSubAgent(this, type, specialization);
+    // Check safety limits
+    const safetyCheck = this.safetyManager.canCreateAgent(this.id, this.agentCreationLimits);
+    if (!safetyCheck.allowed) {
+      throw new Error(`Cannot create sub-agent: ${safetyCheck.reason}`);
+    }
     
+    // Determine if this sub-agent should have agent creation capabilities
+    const shouldIncludeTaskTool = this.shouldAllowAgentCreation(type, specialization);
+    
+    // Prepare tools based on orchestration mode
+    const tools = [...(specialization.tools || [])];
+    if (shouldIncludeTaskTool && !tools.includes('Task')) {
+      tools.push('Task');
+    }
+    
+    // Add safety limits and orchestration config
+    const enhancedSpecialization = {
+      ...specialization,
+      tools,
+      limits: this.agentCreationLimits,
+      orchestrationMode: specialization.orchestrationMode || this.orchestrationMode,
+      parentGod: this.name,
+      allowedGods: specialization.allowedGods || this.agentCreationLimits.allowedGods
+    };
+    
+    // Create the sub-agent
+    const subAgent = await this.factory.createSubAgent(this, type, enhancedSpecialization);
+    
+    // Register with safety manager
+    this.safetyManager.registerAgent(subAgent.id, this.id, {
+      type,
+      god: this.name,
+      hasTaskTool: tools.includes('Task')
+    });
+    
+    // Track internally
     this.subAgents.set(subAgent.id, subAgent);
     this.metrics.subAgentsCreated++;
     
@@ -62,10 +125,34 @@ export class BaseGod extends EventEmitter {
       godName: this.name,
       subAgentId: subAgent.id,
       type,
-      specialization
+      specialization: enhancedSpecialization,
+      hasAgentCreation: shouldIncludeTaskTool
     });
     
     return subAgent;
+  }
+  
+  shouldAllowAgentCreation(type, specialization) {
+    // Determine if this sub-agent should be able to create other agents
+    if (this.orchestrationMode === 'js-only') {
+      return false;
+    }
+    
+    if (this.orchestrationMode === 'ai-driven') {
+      return true;
+    }
+    
+    // Hybrid mode: check specific conditions
+    if (specialization.allowAgentCreation === true) {
+      return true;
+    }
+    
+    if (specialization.allowAgentCreation === false) {
+      return false;
+    }
+    
+    // Default behavior in hybrid mode
+    return type === 'orchestrator' || type === 'coordinator' || type === this.name;
   }
 
   async executeSubAgentTask(subAgentId, task) {

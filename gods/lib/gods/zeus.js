@@ -168,6 +168,12 @@ export class Zeus extends BaseGod {
       task,
       score: 0,
       factors: {},
+      complexity: {
+        technical: 0,
+        uncertainty: 0,
+        domainCount: 0,
+        overall: 0
+      },
       primaryDomain: null,
       requiredCapabilities: [],
       suggestedGods: [],
@@ -176,6 +182,7 @@ export class Zeus extends BaseGod {
     
     // Technical complexity analysis
     analysis.factors.technical = this.assessTechnicalComplexity(task);
+    analysis.complexity.technical = analysis.factors.technical;
     analysis.score += analysis.factors.technical;
     
     // Integration needs
@@ -194,8 +201,16 @@ export class Zeus extends BaseGod {
     analysis.factors.timeline = this.assessTimelineConstraints(task);
     analysis.score += analysis.factors.timeline * 0.5;
     
+    // Assess uncertainty
+    analysis.complexity.uncertainty = this.assessUncertainty(task);
+    analysis.factors.uncertainty = analysis.complexity.uncertainty;
+    
+    // Count domains
+    analysis.complexity.domainCount = this.countDomains(task);
+    
     // Normalize score to 1-10
     analysis.score = Math.min(10, Math.max(1, Math.round(analysis.score / 2)));
+    analysis.complexity.overall = analysis.score;
     
     // Determine primary domain
     analysis.primaryDomain = this.identifyPrimaryDomain(task);
@@ -309,6 +324,49 @@ export class Zeus extends BaseGod {
     }
     
     return Math.min(10, score);
+  }
+  
+  assessUncertainty(task) {
+    let uncertainty = 3; // Base uncertainty
+    
+    // Increase uncertainty for vague requirements
+    if (/explore|research|investigate|possible|maybe|might/i.test(task)) {
+      uncertainty += 3;
+    }
+    
+    // Increase for new/innovative work
+    if (/new|innovative|novel|experimental|poc|proof.of.concept/i.test(task)) {
+      uncertainty += 2;
+    }
+    
+    // Decrease for well-defined tasks
+    if (/specific|defined|clear|standard|existing|known/i.test(task)) {
+      uncertainty -= 2;
+    }
+    
+    // Check for questions or options
+    if (/\?|or|whether|decide|choose/i.test(task)) {
+      uncertainty += 1;
+    }
+    
+    return Math.max(1, Math.min(10, uncertainty));
+  }
+  
+  countDomains(task) {
+    const domains = [
+      'frontend', 'backend', 'mobile', 'database', 'infrastructure',
+      'security', 'ml', 'ai', 'data', 'devops', 'cloud', 'iot', 
+      'blockchain', 'api', 'microservice', 'ui', 'ux'
+    ];
+    
+    let count = 0;
+    for (const domain of domains) {
+      if (new RegExp(domain, 'i').test(task)) {
+        count++;
+      }
+    }
+    
+    return count;
   }
 
   identifyPrimaryDomain(task) {
@@ -819,8 +877,97 @@ export class Zeus extends BaseGod {
 
   async orchestrateTask(task) {
     const analysis = await this.analyzeComplexity(task);
-    const plan = await this.analyzeAndDelegate({ task, analysis });
-    return await this.executeOrchestration(plan);
+    
+    // Decide orchestration mode based on complexity and configuration
+    if (this.shouldUseAIOrchestration(analysis)) {
+      // AI-driven orchestration for complex tasks
+      this.metrics.aiOrchestrations++;
+      return await this.aiDrivenOrchestration(task, analysis);
+    } else {
+      // Traditional JS orchestration for simple tasks
+      this.metrics.jsOrchestrations++;
+      const plan = await this.analyzeAndDelegate({ task, analysis });
+      return await this.executeOrchestration(plan);
+    }
+  }
+  
+  shouldUseAIOrchestration(analysis) {
+    // Never use AI orchestration in js-only mode
+    if (this.orchestrationMode === 'js-only') {
+      return false;
+    }
+    
+    // Always use AI orchestration in ai-driven mode
+    if (this.orchestrationMode === 'ai-driven') {
+      return true;
+    }
+    
+    // Hybrid mode: use AI for complex tasks
+    return analysis.score > 5 || analysis.complexity.uncertainty > 6;
+  }
+  
+  async aiDrivenOrchestration(task, analysis) {
+    this.emit('zeus:ai-orchestration-start', { task, analysis });
+    
+    // Create an AI orchestrator sub-agent with Zeus's capabilities
+    const zeusOrchestrator = await this.createSubAgent('zeus-orchestrator', {
+      instructions: this.config.raw,
+      allowAgentCreation: true,
+      task: task,
+      analysis: analysis,
+      constraints: {
+        maxAgents: this.agentCreationLimits.maxAgents,
+        allowedGods: this.agentCreationLimits.allowedGods,
+        timeout: this.agentCreationLimits.timeout,
+        maxDepth: this.agentCreationLimits.maxDepth
+      }
+    });
+    
+    try {
+      // Execute the orchestration through the AI agent
+      const result = await this.executeSubAgentTask(zeusOrchestrator.id, {
+        command: 'orchestrate_complex_task',
+        task: task,
+        analysis: analysis,
+        mode: 'ai-driven',
+        context: {
+          availableGods: this.specialists,
+          workflows: Array.from(this.workflows.keys()),
+          orchestrationGuidelines: this.getOrchestrationGuidelines()
+        }
+      });
+      
+      this.emit('zeus:ai-orchestration-complete', { task, result });
+      return result;
+    } catch (error) {
+      this.emit('zeus:ai-orchestration-error', { task, error });
+      
+      // Fallback to JS orchestration if AI fails
+      console.warn('AI orchestration failed, falling back to JS orchestration:', error);
+      const plan = await this.analyzeAndDelegate({ task, analysis });
+      return await this.executeOrchestration(plan);
+    } finally {
+      // Clean up the orchestrator agent
+      if (this.safetyManager) {
+        this.safetyManager.unregisterAgent(zeusOrchestrator.id);
+      }
+    }
+  }
+  
+  getOrchestrationGuidelines() {
+    return {
+      simple: 'For simple tasks (score 1-3), use a single specialist god',
+      moderate: 'For moderate tasks (score 4-6), coordinate 2-3 gods',
+      complex: 'For complex tasks (score 7-8), use a structured workflow',
+      extreme: 'For extreme tasks (score 9-10), employ full orchestration with multiple phases',
+      principles: [
+        'Always start with requirements analysis',
+        'Prefer parallel execution when possible',
+        'Ensure proper handoffs between gods',
+        'Validate results at each stage',
+        'Document key decisions in memory'
+      ]
+    };
   }
 
   getOrchestrationStatus() {
