@@ -139,6 +139,14 @@ When gods determine it's time to build, they:
 3. Execute real development tasks
 4. Report progress back to the divine council
 
+## Known Issues
+
+### Process Doesn't Exit Cleanly
+
+The Claude-Flow library keeps background processes running. When stopping the server:
+- Use `Ctrl+C` twice to force exit
+- This is normal behavior and doesn't affect functionality
+
 ## Troubleshooting
 
 ### MCP Server Not Starting

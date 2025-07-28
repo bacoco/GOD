@@ -99,20 +99,20 @@ export class PantheonCore extends EventEmitter {
   }
 
   async loadGodConfigurations() {
-    const agentsDir = join(__dirname, '..', '.claude', 'agents');
+    // Load god configurations from the JavaScript implementations
+    const godNames = [
+      'zeus', 'janus', 'daedalus', 'hephaestus', 'apollo',
+      'athena', 'prometheus', 'hermes', 'themis', 'aegis',
+      'oracle', 'harmonia', 'calliope', 'iris', 'argus',
+      'code-reviewer', 'concilium', 'vulcan'
+    ];
     
     try {
-      const files = await readdir(agentsDir);
-      const mdFiles = files.filter(f => f.endsWith('.md'));
-      
-      for (const file of mdFiles) {
-        const godName = file.replace('.md', '');
-        const configPath = join(agentsDir, file);
-        
-        // Store config path for lazy loading
+      for (const godName of godNames) {
+        // Store config for each god
         this.godConfigs.set(godName, {
           name: godName,
-          configPath,
+          configPath: join(__dirname, 'gods', `${godName}.js`),
           tools: this.toolAssignments[godName] || [],
           loaded: false
         });
