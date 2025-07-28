@@ -13,18 +13,23 @@ Pantheon is a conversational AI system that transforms your ideas into working s
 git clone https://github.com/bacoco/pantheon.git
 cd pantheon
 
-# Install dependencies
-npm install
-
-# Install Claude-Flow (REQUIRED - this powers the AI agents)
-node install-claude-flow.js
+# Run the installer (handles everything automatically)
+./install-pantheon-gods.sh
 ```
+
+That's it! The installer sets up everything including Claude-Flow.
 
 ### Your First Project
 
 ```bash
-# Start a new project
-/gods init "I want to build a task management app"
+# 1. Go to your project directory
+cd my-awesome-project
+
+# 2. Activate the gods
+gods
+
+# 3. In Claude, start building
+/gods-init "I want to build a task management app"
 
 # The gods will ask clarifying questions:
 # - Who are your users?
@@ -36,24 +41,31 @@ node install-claude-flow.js
 
 ## 💬 Core Commands
 
-### `/gods init [idea]`
+**First**, activate gods in your project: `gods`
+
+**Then**, use these commands in Claude:
+
+### `/gods-init [idea]`
 Start a new project. The gods will guide you through:
 1. **Discovery** - Understanding your vision
 2. **Planning** - Defining features and approach  
 3. **Design** - Creating the user experience
 4. **Building** - Implementing with AI agents
 
-### `/gods status`
+### `/gods-status`
 Check the progress of your current project:
 - See which gods are working
 - View completed tasks
 - Track remaining work
 
-### `/gods resume`
+### `/gods-resume`
 Continue working on your project from where you left off.
 
-### `/gods help`
-Get help and see all available commands.
+### `/gods-chat`
+Have ongoing conversations with specific gods.
+
+### `/gods`
+See all available commands and get help.
 
 ## 🏛️ Meet the Gods
 
@@ -85,19 +97,22 @@ Each god specializes in different aspects of development:
 
 ### E-Commerce Platform
 ```bash
-/gods init "online marketplace for handmade crafts with seller profiles"
+# In your project: gods
+# In Claude: /gods-init "online marketplace for handmade crafts with seller profiles"
 ```
 Gods involved: Zeus, Apollo (design), Hephaestus (backend), Plutus (payments), Hestia (profiles)
 
 ### Social App
 ```bash
-/gods init "social app for book lovers to share reviews and reading lists"
+# In your project: gods
+# In Claude: /gods-init "social app for book lovers to share reviews and reading lists"
 ```
 Gods involved: Zeus, Apollo (UI), Hephaestus (backend), Hermes (real-time), Hestia (profiles)
 
 ### AI Tool
 ```bash
-/gods init "AI tool that summarizes YouTube videos into key points"
+# In your project: gods
+# In Claude: /gods-init "AI tool that summarizes YouTube videos into key points"
 ```
 Gods involved: Zeus, Athena (AI), Hephaestus (backend), Apollo (interface), Iris (YouTube API)
 

@@ -93,25 +93,42 @@ Start simple, evolve naturally:
 
 ## Installation & Setup
 
+### One-Time Installation (30 seconds)
+
 ```bash
 # Clone Pantheon
 git clone https://github.com/bacoco/pantheon.git
 cd pantheon
 
-# Install dependencies
-npm install
-
-# Install Claude-Flow (REQUIRED)
-node install-claude-flow.js
+# Run the installer
+./install-pantheon-gods.sh
 ```
 
-**⚠️ Important**: Claude-Flow is now mandatory. Pantheon uses real AI agents to build your project, not templates.
+That's it! The installer handles everything including Claude-Flow setup.
+
+### Using Pantheon (Forever After)
+
+```bash
+# 1. Go to any project
+cd my-awesome-project
+
+# 2. Type one word
+gods
+
+# 3. In Claude, type
+/gods-init "your amazing idea"
+```
+
+**✨ No complex commands needed!** Just `gods` to activate divine coding assistance.
 
 ## See It In Action
 
 ```bash
-# Start building with AI agents
-/gods init "I want to create a recipe sharing platform for home cooks"
+# Activate gods in your project
+gods
+
+# Then in Claude:
+/gods-init "I want to create a recipe sharing platform for home cooks"
 ```
 
 Watch as your idea transforms into:
@@ -162,14 +179,15 @@ This is powered by:
 ## Start Building Today
 
 ```bash
-# Your first command
-/gods init "Describe your dream project"
+# Step 1: Activate in your project
+gods
 
-# Check progress
-/gods status
-
-# Resume anytime
-/gods resume
+# Step 2: Use these commands in Claude
+/gods-init   "Describe your dream project"
+/gods-status  # Check progress
+/gods-resume  # Continue anytime
+/gods-chat    # Talk with any god
+/gods         # See all commands
 ```
 
 ## Join the Revolution
@@ -178,8 +196,12 @@ Software creation shouldn't be limited to programmers. With Pantheon, if you can
 
 **Ready to bring your ideas to life?**
 
-```
-/gods init "What will you create today?"
+```bash
+# In your project:
+gods
+
+# In Claude:
+/gods-init "What will you create today?"
 ```
 
 ---

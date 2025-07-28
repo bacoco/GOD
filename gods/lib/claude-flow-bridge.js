@@ -70,7 +70,7 @@ export class ClaudeFlowBridge extends EventEmitter {
    */
   executeCommand(args) {
     return new Promise((resolve, reject) => {
-      const process = spawn(this.claudeFlowBin, args, {
+      const childProc = spawn(this.claudeFlowBin, args, {
         cwd: this.claudeFlowPath,
         env: { ...process.env, NODE_ENV: 'production' }
       });
@@ -78,15 +78,15 @@ export class ClaudeFlowBridge extends EventEmitter {
       let output = '';
       let error = '';
       
-      process.stdout.on('data', (data) => {
+      childProc.stdout.on('data', (data) => {
         output += data.toString();
       });
       
-      process.stderr.on('data', (data) => {
+      childProc.stderr.on('data', (data) => {
         error += data.toString();
       });
       
-      process.on('close', (code) => {
+      childProc.on('close', (code) => {
         if (code === 0) {
           resolve(output);
         } else {
@@ -94,7 +94,7 @@ export class ClaudeFlowBridge extends EventEmitter {
         }
       });
       
-      process.on('error', (err) => {
+      childProc.on('error', (err) => {
         reject(err);
       });
     });
@@ -308,8 +308,8 @@ export class ClaudeFlowBridge extends EventEmitter {
    * @returns {Object} Task result
    */
   async executeAgentTask(agentId, task) {
-    const process = this.activeProcesses.get(agentId);
-    if (!process) {
+    const childProc = this.activeProcesses.get(agentId);
+    if (!childProc) {
       throw new Error(`Agent ${agentId} not found`);
     }
     
@@ -338,8 +338,8 @@ export class ClaudeFlowBridge extends EventEmitter {
         }
       };
       
-      process.stdout.on('data', outputHandler);
-      process.stderr.on('data', outputHandler);
+      childProc.stdout.on('data', outputHandler);
+      childProc.stderr.on('data', outputHandler);
       
       // Wait for process to complete or timeout
       const timeout = setTimeout(() => {
@@ -349,7 +349,7 @@ export class ClaudeFlowBridge extends EventEmitter {
         resolve(taskResult);
       }, 30000); // 30 second timeout
       
-      process.on('close', (code) => {
+      childProc.on('close', (code) => {
         clearTimeout(timeout);
         taskResult.success = code === 0;
         taskResult.result = output;
@@ -357,7 +357,7 @@ export class ClaudeFlowBridge extends EventEmitter {
         resolve(taskResult);
       });
       
-      process.on('error', (err) => {
+      childProc.on('error', (err) => {
         clearTimeout(timeout);
         reject(err);
       });
@@ -367,13 +367,13 @@ export class ClaudeFlowBridge extends EventEmitter {
   /**
    * Set up real-time streaming from agent process
    * @param {string} agentId - Agent ID
-   * @param {ChildProcess} process - Agent process
+   * @param {ChildProcess} childProc - Agent process
    */
-  setupProcessStreaming(agentId, process) {
+  setupProcessStreaming(agentId, childProc) {
     const godName = this.agentToGod.get(agentId);
     
     // Stream stdout
-    process.stdout.on('data', (data) => {
+    childProc.stdout.on('data', (data) => {
       this.emit('agent:progress', {
         agentId,
         godName,
@@ -383,7 +383,7 @@ export class ClaudeFlowBridge extends EventEmitter {
     });
     
     // Stream stderr (for errors/warnings)
-    process.stderr.on('data', (data) => {
+    childProc.stderr.on('data', (data) => {
       this.emit('agent:progress', {
         agentId,
         godName,
@@ -393,7 +393,7 @@ export class ClaudeFlowBridge extends EventEmitter {
     });
     
     // Handle process completion
-    process.on('close', (code) => {
+    childProc.on('close', (code) => {
       this.emit('agent:progress', {
         agentId,
         godName,
@@ -533,9 +533,9 @@ export class ClaudeFlowBridge extends EventEmitter {
     
     try {
       // Kill the process if it's still running
-      const process = this.activeProcesses.get(agentId);
-      if (process) {
-        process.kill('SIGTERM');
+      const childProc = this.activeProcesses.get(agentId);
+      if (childProc) {
+        childProc.kill('SIGTERM');
         this.activeProcesses.delete(agentId);
       }
       
@@ -601,8 +601,8 @@ export class ClaudeFlowBridge extends EventEmitter {
     
     try {
       // Terminate all running processes
-      for (const [agentId, process] of this.activeProcesses) {
-        process.kill('SIGTERM');
+      for (const [agentId, childProc] of this.activeProcesses) {
+        childProc.kill('SIGTERM');
       }
       
       // Clear references
