@@ -118,6 +118,24 @@ else
     # Run local claude-flow init
     \"\$CLAUDE_FLOW_BIN\" init --quiet 2>/dev/null || \"\$CLAUDE_FLOW_BIN\" init
     
+    # Copy gods commands manually since claude-flow doesn't copy them
+    TEMPLATE_DIR=\"\$PANTHEON_DIR/claude-flow/src/templates/claude-optimized/.claude/commands\"
+    TARGET_DIR=\".claude/commands\"
+    
+    if [ -d \"\$TEMPLATE_DIR\" ] && [ -d \"\$TARGET_DIR\" ]; then
+        echo \"\"
+        echo \"📝 Adding Pantheon gods commands...\"
+        cp \"\$TEMPLATE_DIR\"/gods*.md \"\$TARGET_DIR\"/ 2>/dev/null
+        
+        # Count how many were copied
+        GODS_COUNT=\$(ls -1 \"\$TARGET_DIR\"/gods*.md 2>/dev/null | wc -l)
+        if [ \"\$GODS_COUNT\" -gt 0 ]; then
+            echo \"✅ Added \$GODS_COUNT gods commands\"
+        else
+            echo \"⚠️  Warning: Could not copy gods commands\"
+        fi
+    fi
+    
     echo \"\"
     echo \"✨ Pantheon Gods activated!\"
     echo \"\"
