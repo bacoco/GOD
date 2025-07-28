@@ -1,10 +1,12 @@
 # 🔧 Gods Command Fix Applied!
 
-## The Problem
-The `gods` command was using the NPM version of claude-flow which doesn't include Pantheon commands.
+## The Problems Fixed
+1. The `gods` command was using the NPM version of claude-flow which doesn't include Pantheon commands.
+2. Even with local claude-flow, the gods commands weren't being copied because claude-flow init only copies subdirectories, not individual .md files.
 
-## The Solution
-Fixed `gods` to use the local Pantheon claude-flow that includes all the gods commands.
+## The Solutions
+1. Fixed `gods` to use the local Pantheon claude-flow that includes all the gods commands.
+2. Added manual copying of gods*.md files after claude-flow init completes.
 
 ## For Users to Apply the Fix:
 
