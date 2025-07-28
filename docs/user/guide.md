@@ -4,14 +4,10 @@ Welcome to Pantheon, where you don't write code or manage technical details. Ins
 
 ## Getting Started
 
-To begin any project with Pantheon in Claude Code CLI:
+To begin any project, simply type in Claude Code CLI:
 
-```bash
-# Make sure you're in the Pantheon directory
-cd pantheon
-
-# Start your project with a simple command
-node claude-pantheon.js "/gods init 'I want to build a recipe sharing platform'"
+```
+/gods init "I want to build a recipe sharing platform"
 ```
 
 That's it. Zeus will greet you and guide you through everything else.
@@ -57,36 +53,34 @@ You never manage these transitions. The gods handle everything.
 While most of your interaction is conversational, a few simple commands help you navigate:
 
 ### Starting Fresh
-```bash
-node claude-pantheon.js "/gods init 'Your project idea'"
+```
+/gods init "Your project idea"
 ```
 Begin a new project with your vision.
 
 ### Checking Progress
-```bash
-node claude-pantheon.js "/gods status"
+```
+/gods status
 ```
 See what the gods are currently working on.
 
 ### Listing Projects
-```bash
-node claude-pantheon.js "/gods projects"
+```
+/gods projects
 ```
 View all projects the council is managing for you.
 
 ### Getting Help
-```bash
-node claude-pantheon.js "/gods help"
-# Or get help for a specific command
-node claude-pantheon.js "/gods help init"
+```
+/gods help
+/gods help init    # Get help for a specific command
 ```
 The gods explain how they can assist you.
 
 ### Resuming Work
-```bash
-node claude-pantheon.js "/gods resume"
-# Or resume a specific project
-node claude-pantheon.js "/gods resume project-name"
+```
+/gods resume              # Resume most recent project
+/gods resume project-name # Resume specific project
 ```
 Continue a previous conversation where you left off.
 
@@ -167,8 +161,8 @@ Change your mind, explore alternatives, ask "what if" - the gods adapt instantly
 
 Ready to begin? Simply share your idea:
 
-```bash
-node claude-pantheon.js "/gods init 'Your vision here'"
+```
+/gods init "Your vision here"
 ```
 
 The council awaits your command.

@@ -77,7 +77,7 @@ Based on advanced analysis and recommendations, Pantheon now includes five major
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/pantheon.git
+git clone https://github.com/bacoco/pantheon.git
 cd pantheon
 
 # Install dependencies

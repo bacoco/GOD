@@ -29,16 +29,16 @@ chmod -R 755 gods/
 #### "Command not found" or no response
 **Problem**: The command format might be incorrect.
 
-**Solution**: Always use quotes around the full command:
-```bash
+**Solution**: In Claude Code CLI, use the correct format:
+```
 # ✅ Correct
-node claude-pantheon.js "/gods init 'my project idea'"
+/gods init "my project idea"
 
 # ❌ Wrong - missing quotes
-node claude-pantheon.js /gods init my project idea
+/gods init my project idea
 
-# ❌ Wrong - incorrect quotes
-node claude-pantheon.js /gods init "my project idea"
+# ❌ Wrong - using single quotes
+/gods init 'my project idea'
 ```
 
 #### "No projects found" when running /gods resume
@@ -78,12 +78,12 @@ rm gods/.pantheon-state/current-session.json
 **Problem**: Current session pointer is incorrect.
 
 **Solution**:
-```bash
+```
 # List all projects
-node claude-pantheon.js "/gods projects"
+/gods projects
 
 # Resume specific project by name
-node claude-pantheon.js "/gods resume 'project-name'"
+/gods resume "project-name"
 ```
 
 ### Generation Issues
@@ -151,11 +151,15 @@ ls gods/lib/pantheon-core.js
 
 Enable detailed debugging:
 ```bash
-# Set debug environment variable
-DEBUG=1 node claude-pantheon.js "/gods init 'test'"
+# Set debug environment variable before running
+export DEBUG=1
+
+# Then in Claude Code CLI
+/gods init "test"
 
 # Or for specific debugging
-DEBUG=pantheon:* node claude-pantheon.js "/gods help"
+export DEBUG=pantheon:*
+/gods help
 ```
 
 ### Error Messages

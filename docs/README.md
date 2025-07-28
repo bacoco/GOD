@@ -1,86 +1,91 @@
 # Pantheon Documentation
 
-This directory contains all documentation for the Pantheon God Agent System.
+Welcome to the Pantheon documentation. Here you'll find everything you need to understand, use, and extend Pantheon.
 
-## 📁 Directory Structure
+## 📚 Documentation Structure
 
-### 📋 [analysis/](analysis/)
-- `gemini-analysis.md` - Gemini's analysis of the codebase
+### [For Users](user/)
+Start here if you want to use Pantheon to build your projects.
 
-### 💬 [conversational/](conversational/)
-- `README.md` - Complete guide to the conversational system
-- Architecture, API reference, workflows, and best practices
+- **[Quick Start Guide](user/quickstart.md)** - Get up and running in 5 minutes
+- **[User Guide](user/guide.md)** - Complete guide to working with the gods
+- **[Claude Code Usage](user/claude-code-usage.md)** - Using Pantheon in Claude Code CLI
+- **[Examples](user/examples.md)** - Real-world examples and patterns
+- **[Troubleshooting](user/troubleshooting.md)** - Common issues and solutions
+- **[God Guides](user/gods/)** - Specific guides for each god's capabilities
+  - [Concilium](user/gods/concilium.md) - Collaborative decision making
+  - [Vulcan](user/gods/vulcan.md) - Tool integration and MCP
 
-### 📚 [implementation/](implementation/)
-- `IMPLEMENTATION_PLAN.md` - Detailed plan for reaching 10/10 score
-- `HYBRID_ORCHESTRATION.md` - Hybrid orchestration architecture details
-- `HYBRID_ORCHESTRATION_SUMMARY.md` - Summary of hybrid implementation
-- `MD_SYSTEM_IMPLEMENTATION_SUMMARY.md` - MD-based agent system summary
-- `MD_BASED_AGENT_SYSTEM.md` - MD-based dynamic agent system details
+### [For Developers](developer/)
+Technical documentation for extending or contributing to Pantheon.
 
-### 🛠️ MCP Tools & Tool Management
-- `MCP_TOOLS_EXPLAINED.md` - Simple explanation of how 87+ MCP tools work with gods and agents
-- `VULCAN_TOOL_BROKER.md` - Complete guide to Vulcan, the Divine Tool Broker
-- `VULCAN_QUICK_START.md` - Quick start guide for using Vulcan
+- **[Developer Guide](developer/guide.md)** - Architecture and implementation details
+- **[Deployment Guide](developer/deployment.md)** - How to deploy Pantheon
+- **[MCP Tools](developer/mcp-tools.md)** - Understanding tool integration
+- **[Implementation Details](developer/implementation/)** - Deep technical documentation
 
-### 🏛️ [Meeting Rooms](CONCILIUM_MEETING_GUIDE.md)
-- `CONCILIUM_MEETING_GUIDE.md` - Complete guide to Concilium meeting rooms
+### [Concepts](concepts/)
+Understand the philosophy and design of Pantheon.
 
-### 🎯 [examples/](examples/)
-- `COMPLETE_EXAMPLE.md` - Complete walkthrough of building an e-commerce platform
-- `QUICK_DEMO.md` - Quick hands-on demonstrations
-- `QUICKSTART.md` - Getting started guide
-
-### 💡 [explanations/](explanations/)
-- `AGENT_CREATION_DIALOGUE.md` - Simple dialogue explaining agent creation
-- `AGENT_CREATION_FLOWCHART.md` - Visual flowcharts of the system
-- `WHO_CREATES_WHO.md` - Clear explanation of agent creation chain
-- `SIMPLEST_EXPLANATION.md` - Restaurant analogy for understanding
-- `VISUAL_FLOW.md` - Visual diagrams of task flows
-
-## 🔍 Quick Navigation
-
-### For New Users
-1. Start with [QUICKSTART.md](examples/QUICKSTART.md)
-2. Read [SIMPLEST_EXPLANATION.md](explanations/SIMPLEST_EXPLANATION.md)
-3. Try [QUICK_DEMO.md](examples/QUICK_DEMO.md)
-
-### For Conversational Features ✨ NEW!
-1. [Conversational Guide](conversational/README.md) - Complete conversational system documentation
-2. Run `node examples/conversational-demo.js` - Interactive demo
-3. Run `node tests/test-conversational-flow.js` - See gods talking to each other
-
-### For Tool Discovery & Access ✨ NEW!
-1. [Vulcan Tool Broker Guide](VULCAN_TOOL_BROKER.md) - How Vulcan helps gods access MCP tools
-2. [Vulcan Quick Start](VULCAN_QUICK_START.md) - Start using Vulcan immediately
-3. Run `node test/vulcan-tool-broker-demo.js` - See Vulcan in action
-
-### For Collaborative Meetings ✨ NEW!
-1. [Concilium Meeting Guide](CONCILIUM_MEETING_GUIDE.md) - Divine meeting rooms explained
-2. Run `node test/concilium-meeting-demo.js` - Interactive meeting demonstration
-3. Meeting types: Sprint planning, code reviews, emergency response, and more
-
-### For Understanding the System
-1. [VISUAL_FLOW.md](explanations/VISUAL_FLOW.md) - See how it works
-2. [WHO_CREATES_WHO.md](explanations/WHO_CREATES_WHO.md) - Understand agent creation
-3. [COMPLETE_EXAMPLE.md](examples/COMPLETE_EXAMPLE.md) - Full example
-
-### For Developers
-1. [IMPLEMENTATION_PLAN.md](implementation/IMPLEMENTATION_PLAN.md) - Development roadmap
-2. [HYBRID_ORCHESTRATION.md](implementation/HYBRID_ORCHESTRATION.md) - Technical architecture
-3. [MD_SYSTEM_IMPLEMENTATION_SUMMARY.md](implementation/MD_SYSTEM_IMPLEMENTATION_SUMMARY.md) - MD system details
-4. [Conversational Architecture](conversational/README.md#architecture) - Conversational system design
-
-## 📖 Additional Documentation
-
-- Main README: [../README.md](../README.md)
-- Project Structure: [../PROJECT_STRUCTURE.md](../PROJECT_STRUCTURE.md)
-- Claude Code Usage: [../CLAUDE_CODE_USAGE.md](../CLAUDE_CODE_USAGE.md)
-- God-specific docs: [../gods/docs/](../gods/docs/)
-- API documentation: See implementation docs
+- **[Overview](concepts/overview.md)** - What Pantheon is and how it works
+- **[Architecture](concepts/architecture.md)** - System design and components
+- **[Philosophy](concepts/philosophy.md)** - Design principles and vision
 
 ## 🚀 Getting Started
 
-If you're new to Pantheon, we recommend starting with the [QUICKSTART guide](examples/QUICKSTART.md) and then exploring the [examples](examples/) directory.
+New to Pantheon? Start here:
 
-For a deep understanding of how the system works, check out the [explanations](explanations/) directory, which contains visual diagrams and simple analogies.
+1. Read the [Overview](concepts/overview.md) to understand what Pantheon is
+2. Follow the [Quick Start Guide](user/quickstart.md) to try it yourself
+3. Explore [Examples](user/examples.md) to see what you can build
+
+## 🏛️ The Gods
+
+Meet your divine development team:
+
+- **Zeus** - Orchestrator and project lead
+- **Prometheus** - Product visionary
+- **Apollo** - Design maestro
+- **Hephaestus** - Master builder
+- **Athena** - Strategic analyst
+- **Daedalus** - System architect
+- **Themis** - Quality guardian
+- **Hermes** - Process coordinator
+- **Aegis** - Security protector
+- **Vulcan** - Tool integrator
+- **Concilium** - Collaboration facilitator
+
+## 🎯 Quick Commands
+
+```bash
+# Start a new project
+/gods init "your project idea"
+
+# Check project status
+/gods status
+
+# List all projects
+/gods projects
+
+# Resume a project
+/gods resume
+
+# Get help
+/gods help
+```
+
+## 📖 Documentation Versions
+
+- **Current**: v1.0 (You are here)
+- **Archive**: Historical documentation in [archive/](archive/)
+
+## 🤝 Contributing
+
+Want to improve the documentation? 
+- User docs focus on clarity and accessibility
+- Developer docs can include technical details
+- Keep examples practical and tested
+
+---
+
+*"From chaos comes order, from many comes one. The gods of Pantheon await your command."* 🏛️

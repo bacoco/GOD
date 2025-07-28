@@ -12,7 +12,7 @@ Get up and running with Pantheon in 5 minutes!
 
 ```bash
 # Clone Pantheon
-git clone https://github.com/yourusername/pantheon.git
+git clone https://github.com/bacoco/pantheon.git
 cd pantheon
 
 # Install dependencies

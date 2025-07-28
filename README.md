@@ -1,144 +1,159 @@
-# 🏛️ Pantheon - Your Divine AI Council
+# 🏛️ Pantheon - AI Development Team in Your Terminal
 
-Transform your ideas into reality through natural conversation with a council of specialized AI gods. No coding required.
+> Transform ideas into working software through conversation. No coding required.
 
-## Quick Start
+## The Problem We Solve
+
+**90% of software ideas die before a single line of code is written.**
+
+Why? Because the gap between vision and implementation is massive:
+- You need to know multiple programming languages
+- You must understand system architecture
+- You require design skills
+- You need to handle databases, APIs, security
+- You must coordinate all these moving parts
+
+Traditional solutions force you to either:
+- 🎓 Spend years learning to code
+- 💰 Hire expensive developers
+- 🤖 Use limited no-code platforms
+- 📚 Follow complex tutorials that don't fit your vision
+
+## How Pantheon Changes Everything
+
+Pantheon gives you a **complete AI development team** that understands natural language:
+
+```
+You: "I need an app to track my gym workouts"
+
+[Zeus]: I'll orchestrate your fitness tracking app. Let me understand 
+your vision better. Will this be for personal use or sharing with others?
+
+You: "I want to share workouts with friends and compete on leaderboards"
+
+[Zeus]: Excellent! This needs social features. I'm bringing in our 
+specialists...
+
+[Apollo]: I'll design an engaging interface with progress charts...
+[Hephaestus]: I'll build the backend with user accounts and real-time updates...
+[Themis]: I'll ensure data privacy and secure friend connections...
+```
+
+**Result**: Complete project with code, architecture, and deployment guide.
+
+## Why This Approach Works
+
+### 1. **Specialized Expertise**
+Just like a real development team, each AI god masters their domain:
+- **Zeus** - Project orchestration and coordination
+- **Apollo** - UI/UX design and user experience
+- **Hephaestus** - Robust code implementation
+- **Athena** - Strategic analysis and planning
+- **Themis** - Testing and quality assurance
+- **Plus 11 more specialists**
+
+### 2. **Natural Collaboration**
+The gods communicate and build on each other's work:
+```
+[Daedalus]: I've designed a microservices architecture...
+[Hephaestus]: Perfect, I'll implement each service...
+[Apollo]: I'll create interfaces that match this structure...
+```
+
+### 3. **Progressive Refinement**
+Start simple, evolve naturally:
+- Begin with core features
+- Add capabilities through conversation
+- Pivot without starting over
+- Learn as you build
+
+## Real Impact
+
+### For Entrepreneurs
+- **Validate ideas** before investing
+- **Build MVPs** in hours, not months
+- **Iterate** based on feedback
+- **Launch faster** than competitors
+
+### For Professionals
+- **Automate workflows** specific to your needs
+- **Create internal tools** without IT bottlenecks
+- **Prototype solutions** for your team
+- **Own your software** destiny
+
+### For Creators
+- **Bring visions to life** without technical barriers
+- **Focus on ideas**, not implementation
+- **Experiment freely** with zero risk
+- **Ship projects** you're proud of
+
+## See It In Action
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/pantheon.git
+# Install Pantheon
+git clone https://github.com/bacoco/pantheon.git
 cd pantheon
-
-# Install dependencies
 npm install
 
-# Start creating with the gods
-node claude-pantheon.js "/gods init 'I want to build a task tracker'"
+# Start building
+/gods init "I want to create a recipe sharing platform for home cooks"
 ```
 
-## What is Pantheon?
+Watch as your idea transforms into:
+- ✅ Complete project structure
+- ✅ Working code implementation
+- ✅ Database design
+- ✅ API endpoints
+- ✅ User interface
+- ✅ Deployment configuration
 
-Pantheon is your personal team of AI specialists, each a master of their domain:
+## What Makes Pantheon Different
 
-- **Zeus** orchestrates your entire project
-- **Prometheus** shapes your product vision  
-- **Apollo** creates stunning designs
-- **Hephaestus** builds with master craftsmanship
-- **And 14 more specialists** ready to help
+| Traditional Development | No-Code Platforms | **Pantheon** |
+|------------------------|-------------------|--------------|
+| Months of learning | Limited templates | Natural conversation |
+| Expensive developers | Rigid constraints | Flexible architecture |
+| Complex coordination | Basic features | Full-stack capabilities |
+| High failure risk | Platform lock-in | You own everything |
 
-You simply describe what you want to create. The gods handle everything else.
+## The Technology Behind the Magic
 
-## Start Your Journey
+Pantheon leverages:
+- **Advanced AI orchestration** for intelligent task distribution
+- **Specialized language models** for each development domain
+- **Context-aware collaboration** between AI agents
+- **Progressive code generation** that evolves with your needs
 
-To use Pantheon with Claude Code CLI, run:
+## Start Building Today
 
 ```bash
-# Start a new project with conversational guidance
-node claude-pantheon.js "/gods init 'I want to create a meditation app'"
+# Your first command
+/gods init "Describe your dream project"
 
-# Or simply run help to see all commands
-node claude-pantheon.js "/gods help"
+# Check progress
+/gods status
+
+# Resume anytime
+/gods resume
 ```
 
-Zeus will greet you and guide you through a natural conversation to bring your vision to life.
+## Join the Revolution
 
-## How It Works
+Software creation shouldn't be limited to programmers. With Pantheon, if you can describe it, you can build it.
 
-1. **Share Your Idea** - Tell the gods what you want to create
-2. **Have a Conversation** - They ask questions to understand your vision
-3. **Collaborate Naturally** - Different gods join as needed
-4. **Watch It Happen** - Your idea transforms into reality
+**Ready to bring your ideas to life?**
 
-No technical knowledge needed. No code to write. Just natural conversation.
-
-## Example Journey
-
-Run the command:
-```bash
-node claude-pantheon.js "/gods init 'I need a website for my bakery'"
 ```
-
-The conversation begins:
-```
-[Zeus]: Greetings! I am Zeus, orchestrator of the Pantheon. I'm here to 
-understand your vision and guide you through bringing it to life. I need 
-a website for my bakery - what an intriguing vision! To ensure we create 
-exactly what you imagine, I'd like to understand a few things:
-
-• Who do you envision as the primary users of this?
-• What single feature would make this indispensable?
-• Is there a particular feeling or experience you want users to have?
-
-Share your thoughts freely - there are no wrong answers.
-
-You: Our local customers who want to see daily specials and place orders
-
-[Zeus]: Perfect! I can see this requires both beautiful presentation 
-and smooth functionality. Let me bring in Prometheus to help define 
-these features in detail...
-
-[Prometheus]: Thank you, Zeus. I'm Prometheus, and I specialize in 
-transforming visions into concrete features. Based on what you discussed 
-with Zeus, I'm thinking about user profiles, recipe collections, and 
-interactive cooking modes. What feature would make your platform 
-indispensable to users?
-```
-
-The conversation continues naturally until your vision is complete and Hephaestus generates your project!
-
-## The Divine Council
-
-Each god brings unique expertise:
-
-- **Product & Strategy**: Prometheus, Athena
-- **Design & Experience**: Apollo, Iris, Harmonia  
-- **Building & Engineering**: Hephaestus, Daedalus
-- **Quality & Security**: Themis, Aegis
-- **Process & Coordination**: Hermes, Zeus
-- **And more specialists** for every need
-
-## Simple Commands
-
-All commands work through the Claude Code CLI:
-
-```bash
-# Start a new project
-node claude-pantheon.js "/gods init 'your project idea'"
-
-# Check current project status
-node claude-pantheon.js "/gods status"
-
-# List all your projects
-node claude-pantheon.js "/gods projects"
-
-# Resume a previous project
-node claude-pantheon.js "/gods resume"
-node claude-pantheon.js "/gods resume project-name"
-
-# Get help
-node claude-pantheon.js "/gods help"
-node claude-pantheon.js "/gods help init"
-```
-
-## Get Started
-
-Ready to create something amazing? The gods await:
-
-```bash
-# First, install dependencies
-npm install
-
-# Then start your journey
-node claude-pantheon.js "/gods init 'Describe your vision here'"
+/gods init "What will you create today?"
 ```
 
 ---
 
-💡 **First time?** Start with `node claude-pantheon.js "/gods help"` to meet the council.
+📖 **Documentation**: [User Guide](docs/user/guide.md) | [Examples](docs/user/examples.md) | [Developer Docs](docs/developer/guide.md)
 
-📖 **Want to dive deeper?** Read the [complete guide](docs/USER_GUIDE.md).
+🤝 **Community**: [GitHub Issues](https://github.com/bacoco/pantheon/issues) | [Discussions](https://github.com/bacoco/pantheon/discussions)
 
-🛠️ **Technical minded?** See the [developer documentation](docs/DEVELOPER_GUIDE.md).
+⭐ **Love Pantheon?** Star us on [GitHub](https://github.com/bacoco/pantheon)!
 
 ---
 

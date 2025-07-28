@@ -16,7 +16,7 @@ This guide covers deploying Pantheon with the conversational /gods interface for
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/pantheon.git
+   git clone https://github.com/bacoco/pantheon.git
    cd pantheon
    ```
 
@@ -33,8 +33,8 @@ This guide covers deploying Pantheon with the conversational /gods interface for
 
 4. **Verify installation**
    ```bash
-   # Test the /gods commands
-   node claude-pantheon.js "/gods help"
+   # Run the verification script
+   npm run verify
    ```
 
 ## Directory Structure Required
@@ -59,7 +59,7 @@ The primary usage is through Claude Code:
 
 ```bash
 # All commands use this format
-node claude-pantheon.js "/gods [command] '[arguments]'"
+/gods [command] "[arguments]"
 ```
 
 ### Standalone Usage
@@ -186,7 +186,7 @@ ENABLE_METACOGNITION=true
 // Add to your monitoring
 const checkPantheon = async () => {
   try {
-    const result = await exec('node claude-pantheon.js "/gods help"');
+    const result = await exec('/gods help');
     return result.includes('Pantheon - Where Gods Build Software');
   } catch (error) {
     return false;
@@ -198,7 +198,7 @@ const checkPantheon = async () => {
 
 Enable detailed logging:
 ```bash
-DEBUG=pantheon:* node claude-pantheon.js "/gods init 'test'"
+DEBUG=pantheon:* /gods init "test"
 ```
 
 ## Troubleshooting
@@ -229,7 +229,7 @@ DEBUG=pantheon:* node claude-pantheon.js "/gods init 'test'"
 
 Run with debugging:
 ```bash
-DEBUG=1 node claude-pantheon.js "/gods init 'test project'"
+DEBUG=1 /gods init "test project"
 ```
 
 ## Performance Optimization

@@ -8,7 +8,7 @@ All documentation has been updated to reflect the working implementation of /god
 
 ### 1. README.md ✅
 - Added Quick Start section with installation steps
-- Updated all commands to show actual usage: `node claude-pantheon.js "/gods init 'idea'"`
+- Updated all commands to show actual usage: `/gods init "idea"`
 - Fixed example journey to show real conversation flow
 - Added proper command syntax for all examples
 - Updated bottom links to use working commands
@@ -73,7 +73,7 @@ All documentation has been updated to reflect the working implementation of /god
 ### Command Format
 All documentation now uses the correct format:
 ```bash
-node claude-pantheon.js "/gods command 'arguments'"
+/gods command "arguments"
 ```
 
 ### Working Examples

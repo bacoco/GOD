@@ -39,7 +39,7 @@ Pantheon System
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/pantheon.git
+git clone https://github.com/bacoco/pantheon.git
 cd pantheon
 
 # Install dependencies
