@@ -18,8 +18,13 @@ This directory contains all documentation for the Pantheon God Agent System.
 - `MD_SYSTEM_IMPLEMENTATION_SUMMARY.md` - MD-based agent system summary
 - `MD_BASED_AGENT_SYSTEM.md` - MD-based dynamic agent system details
 
-### 🛠️ [MCP Tools](MCP_TOOLS_EXPLAINED.md)
+### 🛠️ MCP Tools & Tool Management
 - `MCP_TOOLS_EXPLAINED.md` - Simple explanation of how 87+ MCP tools work with gods and agents
+- `VULCAN_TOOL_BROKER.md` - Complete guide to Vulcan, the Divine Tool Broker
+- `VULCAN_QUICK_START.md` - Quick start guide for using Vulcan
+
+### 🏛️ [Meeting Rooms](CONCILIUM_MEETING_GUIDE.md)
+- `CONCILIUM_MEETING_GUIDE.md` - Complete guide to Concilium meeting rooms
 
 ### 🎯 [examples/](examples/)
 - `COMPLETE_EXAMPLE.md` - Complete walkthrough of building an e-commerce platform
@@ -44,6 +49,16 @@ This directory contains all documentation for the Pantheon God Agent System.
 1. [Conversational Guide](conversational/README.md) - Complete conversational system documentation
 2. Run `node examples/conversational-demo.js` - Interactive demo
 3. Run `node tests/test-conversational-flow.js` - See gods talking to each other
+
+### For Tool Discovery & Access ✨ NEW!
+1. [Vulcan Tool Broker Guide](VULCAN_TOOL_BROKER.md) - How Vulcan helps gods access MCP tools
+2. [Vulcan Quick Start](VULCAN_QUICK_START.md) - Start using Vulcan immediately
+3. Run `node test/vulcan-tool-broker-demo.js` - See Vulcan in action
+
+### For Collaborative Meetings ✨ NEW!
+1. [Concilium Meeting Guide](CONCILIUM_MEETING_GUIDE.md) - Divine meeting rooms explained
+2. Run `node test/concilium-meeting-demo.js` - Interactive meeting demonstration
+3. Meeting types: Sprint planning, code reviews, emergency response, and more
 
 ### For Understanding the System
 1. [VISUAL_FLOW.md](explanations/VISUAL_FLOW.md) - See how it works

@@ -1,6 +1,6 @@
 # 🏛️ Pantheon God Agent System
 
-A powerful AI agent orchestration system that extends Claude-Flow with 16 specialized "god" agents, each capable of creating unlimited sub-agents and coordinating complex multi-agent workflows.
+A powerful AI agent orchestration system that extends Claude-Flow with 18 specialized "god" agents, each capable of creating unlimited sub-agents and coordinating complex multi-agent workflows.
 
 ## Overview
 
@@ -11,6 +11,8 @@ Pantheon transforms Claude-Flow into a divine orchestration system where each "g
 - **Daedalus** - System Architect for design patterns and architecture
 - **Hephaestus** - Master Developer for implementation and coding
 - **Apollo** - UX Designer for user interfaces and experiences
+- **Vulcan** - Divine Tool Broker for MCP tool discovery and access
+- **Concilium** - Divine Council Facilitator for meeting rooms
 - And 11 more specialized gods...
 
 ## Features
@@ -27,6 +29,8 @@ Pantheon transforms Claude-Flow into a divine orchestration system where each "g
 - 💾 **Memory Persistence**: Cosmic memory system for knowledge retention
 - 🔌 **Plugin Architecture**: Clean separation from Claude-Flow core
 - 🔧 **MCP Tool Integration**: Each god has access to specific tools
+- 🛠️ **Dynamic Tool Access** ✨ NEW!: Vulcan helps gods discover and access 87+ MCP tools
+- 🏛️ **Divine Meeting Rooms** ✨ NEW!: Concilium facilitates collaborative god-user meetings
 
 ## Installation
 
@@ -165,11 +169,12 @@ node tests/test-conversational-flow.js
 
 📚 **[Complete Conversational Documentation](docs/conversational/README.md)**
 
-## The 16 Gods
+## The 18 Gods
 
 ### Leadership & Coordination
 - **Zeus** 👑 - Supreme Orchestrator (can create new gods)
 - **Janus** 🌌 - Universal Executor & Meta-Orchestrator
+- **Concilium** 🏛️ - Divine Council Facilitator (meeting rooms)
 
 ### Development Team
 - **Daedalus** 🏛️ - System Architect
@@ -184,6 +189,9 @@ node tests/test-conversational-flow.js
 
 ### Product & Strategy
 - **Prometheus** 🔥 - Product Manager
+
+### Tool & Resource Management
+- **Vulcan** 🔨 - Divine Tool Broker (MCP tool access)
 
 ### Design System Specialists
 - **Oracle** 🔮 - Style Guide Generator
@@ -229,6 +237,33 @@ await pantheon.executeWorkflow('design-system', {
   brand: 'TechCorp',
   platforms: ['web', 'mobile', 'desktop']
 });
+```
+
+### Tool Discovery with Vulcan
+```javascript
+// Help a god discover and access MCP tools
+const vulcan = await pantheon.summon('vulcan');
+await vulcan.handleMessage({
+  from: 'hephaestus',
+  content: 'I need tools for performance analysis'
+});
+// Vulcan recommends: performance_report, bottleneck_analyze, metrics_collect
+// Grants temporary access to requested tools
+```
+
+### Collaborative Meetings with Concilium
+```javascript
+// Create a sprint planning meeting
+const concilium = await pantheon.summon('concilium');
+const meeting = await concilium.createMeeting({
+  title: 'Sprint Planning',
+  type: 'sprint_planning',
+  userId: 'team-lead-123',
+  userRole: 'moderator',
+  agenda: ['Review backlog', 'Estimate stories', 'Commit to sprint']
+});
+// Gods and users collaborate in real-time
+// Automatic action items and summaries generated
 ```
 
 ## Architecture

@@ -28,6 +28,8 @@ export class PantheonCore extends EventEmitter {
     this.toolAssignments = {
       zeus: ['ALL'],
       janus: ['ALL'],
+      vulcan: ['ALL'], // Divine Tool Broker - needs all tools to grant access
+      concilium: ['ALL'], // Divine Council Facilitator - needs all tools for coordination
       daedalus: ['github', 'context7', 'browsermcp'],
       hephaestus: ['github', 'desktop-commander', 'context7', 'claude-task-master'],
       apollo: ['desktop-commander', 'browsermcp', 'github'],
