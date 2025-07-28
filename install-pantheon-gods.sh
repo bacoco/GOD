@@ -33,19 +33,25 @@ else
     echo "✅ Claude-Flow found at: $CLAUDE_FLOW_DIR"
 fi
 
-# Step 2: Verify claude-flow is properly installed
-if [ ! -f "$CLAUDE_FLOW_DIR/bin/claude-flow" ]; then
+# Step 2: Install claude-flow dependencies if needed
+if [ ! -d "$CLAUDE_FLOW_DIR/node_modules" ]; then
     echo "📦 Installing Claude-Flow dependencies..."
     cd "$CLAUDE_FLOW_DIR"
     npm install
     cd "$SCRIPT_DIR"
     
-    # Check again after install
-    if [ ! -f "$CLAUDE_FLOW_DIR/bin/claude-flow" ]; then
-        echo "❌ Error: Claude-Flow installation failed!"
-        exit 1
-    fi
+    # Wait a moment for post-install scripts
+    sleep 2
 fi
+
+# Verify installation succeeded
+if [ ! -f "$CLAUDE_FLOW_DIR/bin/claude-flow" ] && [ ! -f "$CLAUDE_FLOW_DIR/claude-flow" ]; then
+    echo "❌ Error: Claude-Flow installation failed!"
+    echo "Please try running manually: cd claude-flow && npm install"
+    exit 1
+fi
+
+echo "✅ Claude-Flow is properly installed!"
 
 # Step 3: Create the templates directory if it doesn't exist
 TEMPLATES_DIR="$CLAUDE_FLOW_DIR/src/templates/claude-optimized/.claude/commands"

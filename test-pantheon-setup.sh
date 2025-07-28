@@ -59,7 +59,7 @@ echo ""
 echo "3. Checking Pantheon scripts..."
 SCRIPTS=(
     "install-pantheon-gods.sh"
-    "launch-pantheon.sh"
+    "test-pantheon-setup.sh"
 )
 
 for script in "${SCRIPTS[@]}"; do
