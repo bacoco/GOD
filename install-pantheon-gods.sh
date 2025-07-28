@@ -35,9 +35,16 @@ fi
 
 # Step 2: Verify claude-flow is properly installed
 if [ ! -f "$CLAUDE_FLOW_DIR/bin/claude-flow" ]; then
-    echo "❌ Error: Claude-Flow binary not found!"
-    echo "Please run: cd claude-flow && npm install"
-    exit 1
+    echo "📦 Installing Claude-Flow dependencies..."
+    cd "$CLAUDE_FLOW_DIR"
+    npm install
+    cd "$SCRIPT_DIR"
+    
+    # Check again after install
+    if [ ! -f "$CLAUDE_FLOW_DIR/bin/claude-flow" ]; then
+        echo "❌ Error: Claude-Flow installation failed!"
+        exit 1
+    fi
 fi
 
 # Step 3: Create the templates directory if it doesn't exist
