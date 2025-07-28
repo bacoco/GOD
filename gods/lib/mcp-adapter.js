@@ -10,6 +10,16 @@ export class MCPAdapter extends EventEmitter {
     super();
     this.pantheon = pantheon;
     this.activeSessions = new Map();
+    
+    // Conversation phases
+    this.PHASES = {
+      DISCOVERY: 'discovery',
+      PLANNING: 'planning',
+      PROPOSAL: 'proposal',
+      AWAITING_APPROVAL: 'awaiting_approval',
+      APPROVED: 'approved',
+      EXECUTION: 'execution'
+    };
   }
 
   /**
@@ -240,6 +250,39 @@ export class MCPAdapter extends EventEmitter {
           }
         },
         handler: this.handleRestoreSession.bind(this)
+      },
+
+      // Agent spawning (after approval)
+      'pantheon_spawn_agent': {
+        description: 'Spawn a specialized agent after approval (internal use)',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            sessionId: {
+              type: 'string',
+              description: 'Active session ID'
+            },
+            godName: {
+              type: 'string',
+              description: 'God spawning the agent'
+            },
+            agentType: {
+              type: 'string',
+              description: 'Type of agent to spawn'
+            },
+            tools: {
+              type: 'array',
+              items: { type: 'string' },
+              description: 'Tools to allocate to agent'
+            },
+            mission: {
+              type: 'string',
+              description: 'Agent mission description'
+            }
+          },
+          required: ['godName', 'agentType', 'mission']
+        },
+        handler: this.handleSpawnAgent.bind(this)
       }
     };
   }
@@ -429,7 +472,7 @@ With this knowledge, I shall summon the perfect gods to bring your vision to lif
         id: sessionId,
         projectName: conversation.projectName || 'Unnamed Project',
         projectIdea: params.idea,
-        currentPhase: 'discovery',
+        currentPhase: this.PHASES.DISCOVERY,
         currentSpeaker: 'zeus',
         conversation: conversation.session,
         conversationHistory: [{
@@ -438,7 +481,17 @@ With this knowledge, I shall summon the perfect gods to bring your vision to lif
           timestamp: new Date()
         }],
         startTime: new Date(),
-        participants: ['zeus']
+        participants: ['zeus'],
+        // Approval flow tracking
+        hasEnoughInfo: false,
+        proposalData: null,
+        awaitingApproval: false,
+        requirements: {
+          users: null,
+          timeline: null,
+          features: [],
+          constraints: []
+        }
       });
 
       return {
@@ -862,6 +915,21 @@ How may I contribute to ${session.projectIdea}?`;
   }
 
   async generateGodResponse(god, message, session) {
+    // Extract requirements from user message
+    this.extractRequirements(message, session);
+    
+    // Check if we're awaiting approval
+    if (session.awaitingApproval) {
+      return this.handleApprovalResponse(message, session);
+    }
+    
+    // Check if we have enough info for proposal
+    if (session.currentPhase === this.PHASES.DISCOVERY && this.hasEnoughInfoForProposal(session)) {
+      session.currentPhase = this.PHASES.PROPOSAL;
+      session.awaitingApproval = true;
+      return this.generateProjectProposal(session);
+    }
+    
     // Build context from conversation history
     const context = {
       projectIdea: session.projectIdea,
@@ -1010,6 +1078,402 @@ Could you provide more specific details about what you envision?`;
 From my perspective in ${personality.expertise}, this touches on important aspects we should explore further.
 
 What specific outcomes are you hoping to achieve with this?`;
+  }
+
+  // Extract requirements from user messages
+  extractRequirements(message, session) {
+    const lowerMessage = message.toLowerCase();
+    
+    // Extract users
+    if (lowerMessage.includes('team') || lowerMessage.includes('user') || lowerMessage.includes('people')) {
+      const userMatch = message.match(/(\d+[-\s]?\d*)\s*(people|users|team|developers|employees)/i);
+      if (userMatch) {
+        session.requirements.users = message;
+      } else if (lowerMessage.includes('personal') || lowerMessage.includes('myself')) {
+        session.requirements.users = 'Personal use';
+      } else if (lowerMessage.includes('team')) {
+        session.requirements.users = 'Team collaboration';
+      }
+    }
+    
+    // Extract timeline
+    if (lowerMessage.includes('week') || lowerMessage.includes('month') || lowerMessage.includes('day')) {
+      const timeMatch = message.match(/(\d+)\s*(weeks?|months?|days?)/i);
+      if (timeMatch) {
+        session.requirements.timeline = `${timeMatch[1]} ${timeMatch[2]}`;
+      } else if (lowerMessage.includes('asap') || lowerMessage.includes('quickly')) {
+        session.requirements.timeline = 'ASAP';
+      } else if (lowerMessage.includes('mvp')) {
+        session.requirements.timeline = 'MVP timeline';
+      }
+    }
+    
+    // Extract features
+    const featureKeywords = ['need', 'want', 'require', 'must have', 'should have', 'feature'];
+    if (featureKeywords.some(keyword => lowerMessage.includes(keyword))) {
+      // Extract features mentioned after keywords
+      const features = [];
+      if (lowerMessage.includes('auth')) features.push('User authentication');
+      if (lowerMessage.includes('real-time') || lowerMessage.includes('realtime')) features.push('Real-time updates');
+      if (lowerMessage.includes('chat') || lowerMessage.includes('message')) features.push('Chat/messaging');
+      if (lowerMessage.includes('payment')) features.push('Payment processing');
+      if (lowerMessage.includes('dashboard')) features.push('Dashboard');
+      if (lowerMessage.includes('api')) features.push('API endpoints');
+      if (lowerMessage.includes('mobile')) features.push('Mobile support');
+      
+      if (features.length > 0) {
+        session.requirements.features = [...new Set([...session.requirements.features, ...features])];
+      }
+    }
+  }
+
+  // Check if we have enough information for a proposal
+  hasEnoughInfoForProposal(session) {
+    const hasUsers = session.requirements.users !== null;
+    const hasTimeline = session.requirements.timeline !== null;
+    const hasFeatures = session.requirements.features.length > 0 || 
+                       session.conversationHistory.length > 6; // Enough context
+    
+    return hasUsers && hasTimeline && hasFeatures;
+  }
+
+  // Generate the project proposal
+  generateProjectProposal(session) {
+    // Analyze conversation to determine tech stack
+    const techStack = this.determineTechStack(session);
+    const architecture = this.determineArchitecture(session);
+    const godAssignments = this.determineGodAssignments(session);
+    const timeline = this.determineDetailedTimeline(session);
+    
+    // Store proposal data
+    session.proposalData = {
+      techStack,
+      architecture,
+      godAssignments,
+      timeline,
+      features: session.requirements.features
+    };
+    
+    const proposal = `🏛️ **DIVINE DEVELOPMENT PROPOSAL**
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**PROJECT**: ${session.projectIdea}
+**USERS**: ${session.requirements.users || 'To be determined'}
+**TIMELINE**: ${session.requirements.timeline}
+
+**🏗️ TECHNICAL ARCHITECTURE**
+${architecture}
+
+**🛠️ TECHNOLOGY STACK**
+• **Backend**: ${techStack.backend}
+• **Frontend**: ${techStack.frontend}
+• **Database**: ${techStack.database}
+• **Infrastructure**: ${techStack.infrastructure}
+
+**✨ MVP FEATURES**
+${session.requirements.features.length > 0 ? 
+  session.requirements.features.map(f => `• ${f}`).join('\n') : 
+  '• Core functionality based on your requirements'}
+
+**👥 DIVINE TEAM ASSIGNMENTS**
+${godAssignments.map(g => `• **${g.god}**: ${g.responsibility}`).join('\n')}
+
+**📅 DEVELOPMENT PHASES**
+${timeline}
+
+**🚀 WHAT HAPPENS NEXT**
+Upon your approval, each god will:
+1. Spawn specialized AI agents
+2. Generate complete, working code
+3. Create documentation and tests
+4. Report progress back to you
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**Do you approve this divine plan?** 
+
+✅ Reply "**Yes**" to begin construction
+❌ Reply "**No**" or specify what changes you'd like`;
+
+    return {
+      message: proposal,
+      expectsResponse: true,
+      speaker: 'zeus',
+      currentPhase: this.PHASES.AWAITING_APPROVAL
+    };
+  }
+
+  // Handle approval response
+  async handleApprovalResponse(message, session) {
+    const lowerMessage = message.toLowerCase();
+    
+    // Check for approval
+    if (lowerMessage.includes('yes') || lowerMessage.includes('approve') || 
+        lowerMessage.includes('proceed') || lowerMessage.includes('looks good') ||
+        lowerMessage.includes('perfect') || lowerMessage.includes('let\'s go')) {
+      
+      session.currentPhase = this.PHASES.APPROVED;
+      session.awaitingApproval = false;
+      
+      // Trigger execution
+      const executionResult = await this.executeApprovedPlan(session);
+      
+      return {
+        message: `⚡ **DIVINE PLAN APPROVED!** ⚡
+
+Excellent! The gods are pleased with your approval.
+
+${executionResult.message}
+
+*Thunder echoes across Olympus as the gods begin their work...*
+
+🔨 **Construction has begun!** Check your project directory - the divine builders are creating your ${session.projectIdea}!`,
+        expectsResponse: false,
+        speaker: 'zeus',
+        handoff: null,
+        currentPhase: this.PHASES.EXECUTION,
+        executionStarted: true
+      };
+    }
+    
+    // Check for rejection or modification request
+    if (lowerMessage.includes('no') || lowerMessage.includes('change') || 
+        lowerMessage.includes('different') || lowerMessage.includes('instead')) {
+      
+      session.awaitingApproval = false;
+      session.currentPhase = this.PHASES.PLANNING;
+      
+      return {
+        message: `Of course! I understand you'd like some changes to the plan.
+
+Please tell me what you'd like to modify:
+- Different technology choices?
+- Additional features?
+- Different timeline?
+- Other changes?
+
+I'll revise the divine plan according to your wishes.`,
+        expectsResponse: true,
+        speaker: 'zeus'
+      };
+    }
+    
+    // Unclear response
+    return {
+      message: `I need a clear decision on the proposal.
+
+Please reply with:
+- "**Yes**" to approve and begin construction
+- "**No**" followed by what changes you'd like
+
+The gods await your command!`,
+      expectsResponse: true,
+      speaker: 'zeus'
+    };
+  }
+
+  // Determine tech stack based on requirements
+  determineTechStack(session) {
+    const requirements = session.requirements;
+    const hasRealTime = requirements.features.some(f => f.toLowerCase().includes('real-time'));
+    const hasMobile = requirements.features.some(f => f.toLowerCase().includes('mobile'));
+    
+    // Smart defaults based on timeline and features
+    const isRapid = requirements.timeline?.toLowerCase().includes('week') || 
+                    requirements.timeline?.toLowerCase().includes('asap');
+    
+    return {
+      backend: hasRealTime ? 'Node.js + Express + Socket.io' : 'Node.js + Express',
+      frontend: hasMobile ? 'React Native' : 'React + TypeScript',
+      database: isRapid ? 'PostgreSQL' : 'PostgreSQL with Redis cache',
+      infrastructure: isRapid ? 'Docker + Railway' : 'Docker + AWS'
+    };
+  }
+
+  // Determine architecture
+  determineArchitecture(session) {
+    const isSimple = session.requirements.timeline?.includes('week') || 
+                     session.requirements.features.length < 5;
+    
+    if (isSimple) {
+      return `**Monolithic Architecture** (Recommended for rapid development)
+• Single deployable unit
+• Shared database
+• Easy to develop and deploy
+• Can be split into microservices later`;
+    } else {
+      return `**Modular Monolith** (Recommended for scalability)
+• Single deployment with clear module boundaries
+• Prepared for future microservices split
+• Domain-driven design
+• Clean architecture principles`;
+    }
+  }
+
+  // Determine god assignments
+  determineGodAssignments(session) {
+    const assignments = [
+      {
+        god: 'Zeus',
+        responsibility: 'Overall orchestration and project coordination',
+        agentType: 'orchestrator',
+        tools: ['Task', 'TodoWrite', 'Memory']
+      },
+      {
+        god: 'Hephaestus',
+        responsibility: 'Backend API and database implementation',
+        agentType: 'backend-dev',
+        tools: ['Read', 'Write', 'Edit', 'Bash', 'github']
+      },
+      {
+        god: 'Apollo',
+        responsibility: 'Frontend UI/UX and user interface',
+        agentType: 'frontend-dev',
+        tools: ['Read', 'Write', 'Edit', 'Bash', 'browsermcp']
+      }
+    ];
+    
+    // Add specialists based on features
+    if (session.requirements.features.some(f => f.includes('auth'))) {
+      assignments.push({
+        god: 'Aegis',
+        responsibility: 'Security and authentication system',
+        agentType: 'security-specialist',
+        tools: ['Read', 'Write', 'Edit', 'github']
+      });
+    }
+    
+    assignments.push({
+      god: 'Themis',
+      responsibility: 'Testing, quality assurance, and documentation',
+      agentType: 'tester',
+      tools: ['Read', 'Write', 'Edit', 'Bash']
+    });
+    
+    return assignments;
+  }
+
+  // Determine detailed timeline
+  determineDetailedTimeline(session) {
+    const timeline = session.requirements.timeline;
+    
+    if (timeline?.includes('2 week') || timeline?.includes('14 day')) {
+      return `**Week 1**: Backend development, database setup, core API
+**Week 2**: Frontend development, integration, testing`;
+    } else if (timeline?.includes('1 week') || timeline?.includes('7 day')) {
+      return `**Days 1-3**: Core backend and database
+**Days 4-6**: Frontend and integration
+**Day 7**: Testing and deployment`;
+    } else if (timeline?.includes('month')) {
+      return `**Week 1**: Architecture and backend foundation
+**Week 2**: Core features implementation
+**Week 3**: Frontend and user experience
+**Week 4**: Testing, polish, and deployment`;
+    } else {
+      return `**Phase 1**: Foundation and core features
+**Phase 2**: User interface and integration
+**Phase 3**: Testing and deployment`;
+    }
+  }
+
+  // Execute the approved plan
+  async executeApprovedPlan(session) {
+    const plan = session.proposalData;
+    const spawnedAgents = [];
+    
+    try {
+      // Create agents for each god assignment
+      for (const assignment of plan.godAssignments) {
+        // Here we would actually spawn claude-flow agents
+        // For now, we'll simulate the process
+        const agentConfig = {
+          name: `${assignment.god.toLowerCase()}-agent-${Date.now()}`,
+          type: assignment.agentType,
+          tools: assignment.tools,
+          mission: assignment.responsibility,
+          context: {
+            project: session.projectIdea,
+            techStack: plan.techStack,
+            features: plan.features,
+            architecture: plan.architecture
+          }
+        };
+        
+        // In real implementation, this would call:
+        // await this.pantheon.claudeFlowBridge.spawnAgent(agentConfig);
+        
+        spawnedAgents.push({
+          god: assignment.god,
+          agentName: agentConfig.name,
+          status: 'spawned'
+        });
+      }
+      
+      // Update session with execution info
+      session.executionStarted = new Date();
+      session.spawnedAgents = spawnedAgents;
+      
+      return {
+        success: true,
+        message: `The following divine agents have been spawned:
+${spawnedAgents.map(a => `• ${a.god}'s agent: ${a.agentName}`).join('\n')}
+
+They are now actively building your project with the approved specifications.`,
+        agents: spawnedAgents
+      };
+      
+    } catch (error) {
+      return {
+        success: false,
+        message: `There was an issue spawning the agents: ${error.message}. Please try again.`,
+        error: error.message
+      };
+    }
+  }
+
+  async handleSpawnAgent(params) {
+    const session = this.activeSessions.get(params.sessionId);
+    
+    // Verify session exists and is approved
+    if (!session) {
+      return { error: 'Session not found' };
+    }
+    
+    if (session.currentPhase !== this.PHASES.APPROVED && session.currentPhase !== this.PHASES.EXECUTION) {
+      return { error: 'Cannot spawn agents - plan not yet approved by user' };
+    }
+    
+    try {
+      // In real implementation, this would call claude-flow
+      // For now, we'll track the spawned agent
+      const agent = {
+        id: `${params.godName}-agent-${Date.now()}`,
+        god: params.godName,
+        type: params.agentType,
+        tools: params.tools || [],
+        mission: params.mission,
+        status: 'active',
+        spawnedAt: new Date()
+      };
+      
+      // Track in session
+      if (!session.spawnedAgents) {
+        session.spawnedAgents = [];
+      }
+      session.spawnedAgents.push(agent);
+      
+      return {
+        success: true,
+        agentId: agent.id,
+        message: `${params.godName} has spawned a ${params.agentType} agent: ${agent.id}`,
+        agent
+      };
+    } catch (error) {
+      return {
+        error: error.message,
+        god: params.godName
+      };
+    }
   }
 }
 
