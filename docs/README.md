@@ -18,6 +18,9 @@ This directory contains all documentation for the Pantheon God Agent System.
 - `MD_SYSTEM_IMPLEMENTATION_SUMMARY.md` - MD-based agent system summary
 - `MD_BASED_AGENT_SYSTEM.md` - MD-based dynamic agent system details
 
+### 🛠️ [MCP Tools](MCP_TOOLS_EXPLAINED.md)
+- `MCP_TOOLS_EXPLAINED.md` - Simple explanation of how 87+ MCP tools work with gods and agents
+
 ### 🎯 [examples/](examples/)
 - `COMPLETE_EXAMPLE.md` - Complete walkthrough of building an e-commerce platform
 - `QUICK_DEMO.md` - Quick hands-on demonstrations

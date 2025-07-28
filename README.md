@@ -353,7 +353,9 @@ const recommendations = await zeus.discoverAgentsForTask(
 
 ## MCP Tool Assignments
 
-Each god has access to specific MCP tools:
+Each god has access to specific MCP tools from Claude Flow's 87+ tool collection:
+
+📚 **[Complete MCP Tools Guide](docs/MCP_TOOLS_EXPLAINED.md)** - Simple explanation of how tools work
 
 - **Zeus & Janus**: ALL tools (universal access)
 - **Daedalus**: github, context7, browsermcp
