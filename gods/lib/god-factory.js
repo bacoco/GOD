@@ -27,7 +27,7 @@ export class GodFactory {
       'zeus', 'janus', 'daedalus', 'hephaestus', 'apollo',
       'athena', 'prometheus', 'hermes', 'themis', 'aegis',
       'oracle', 'harmonia', 'calliope', 'iris', 'argus',
-      'code-reviewer'
+      'code-reviewer', 'concilium', 'vulcan'
     ];
     
     for (const godName of godNames) {

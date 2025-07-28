@@ -30,6 +30,8 @@ Traditional code generation uses templates. Pantheon creates **custom AI agents*
 - **Prometheus** - Strategic planning and foresight
 - **Daedalus** - System architecture design
 - **Aegis** - Security and authentication
+- **Concilium** - Divine council facilitator for collaborative decisions
+- **Vulcan** - Tool broker managing access to 87 MCP tools
 - **Plutus** - Payment processing
 - **Hestia** - User management
 - **Demeter** - Data modeling
@@ -46,14 +48,21 @@ Zeus: "What makes your app unique?"
 You: "Real-time form checking using phone camera"
 ```
 
-### 2. Intelligent Orchestration
-Based on your requirements, Zeus:
+### 2. Divine Council Meeting
+After understanding your needs, Concilium facilitates:
+- **Architecture Discussion**: Gods debate approaches, you choose
+- **Technology Decisions**: Collaborative selection with your input
+- **Tool Allocation**: Vulcan manages who gets which tools
+- **Responsibility Assignment**: Clear roles for each god
+
+### 3. Intelligent Orchestration
+Based on council decisions, Zeus:
 - Summons Athena for AI/camera features
 - Brings Apollo for the mobile interface
 - Engages Hephaestus for backend APIs
 - Includes Hermes for real-time updates
 
-### 3. Custom Agent Generation
+### 4. Custom Agent Generation
 Each god receives:
 - **Specific capabilities** for your project
 - **Relevant tools** from 87 available

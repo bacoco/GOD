@@ -43,6 +43,39 @@ graph TD
 4. Basic order management
 5. Mobile-responsive design
 
+### The Divine Council Meeting
+
+After gathering requirements, Concilium convenes a planning council:
+
+```
+[Concilium]: Welcome to the Divine Planning Council!
+[Concilium]: Daedalus, Hephaestus, and Apollo have joined the council.
+
+[Daedalus]: Based on the requirements, I see several architectural approaches:
+  1. Microservices with separate real-time service
+  2. Monolithic with integrated WebSocket handling
+  3. Event-driven architecture with message queuing
+
+[Concilium]: Which architectural approach do you prefer? (1-3): 2
+
+[Concilium]: The council agrees on monolithic-websocket architecture.
+
+[Hephaestus]: For the technology stack, I recommend:
+  • Backend: Node.js with Express or Fastify
+  • Database: MongoDB for flexibility
+  • Frontend: React with styled-components
+
+[Concilium]: Let me summon Vulcan to discuss tool allocation...
+
+[Vulcan]: Greetings! I manage access to the 87 divine tools.
+[Vulcan]: Based on this project, I recommend dynamic tool allocation:
+  • Gods will request tools as needed during development
+  • You'll approve tool grants for transparency
+  • This ensures gods only get tools they actually need
+
+[Concilium]: Do you prefer dynamic tool allocation or pre-assign all tools? (dynamic/static): dynamic
+```
+
 ### Generated Agent Specifications
 
 The system analyzes this PRD and generates:
@@ -167,12 +200,21 @@ Swift messenger enabling artisan-customer conversations.
 ```bash
 🏛️ Summoning the divine council to build your project...
 
+[Zeus]: Let me convene the divine council to discuss the best approach...
+
+🏛️ [Concilium]: Welcome to the Divine Planning Council!
+[Council decisions on architecture, technology, and tool strategy...]
+
 [1/5] Analyzing requirements and generating agent specifications...
 ✓ Generated 6 specialized agent specifications
 
+[Summoning Vulcan for dynamic tool allocation...]
+
 [2/5] Processing Zeus - Project Orchestrator...
-  • Allocating tools from 87 MCP tools...
-  • Allocated 15 specialized tools
+  • [Vulcan]: Analyzing tool needs for Zeus - Project Orchestrator...
+  • [Vulcan]: Based on "Project-wide orchestration and coordination", I recommend:
+  • Starting with 3 essential tools
+  • [Vulcan]: Additional tools can be requested during development
   • Composing from 3 base agents...
   • Created hybrid agent with 5 capabilities
   • Generating custom MD configuration...

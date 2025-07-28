@@ -52,6 +52,8 @@ Just like a real development team, each AI god masters their domain:
 - **Hephaestus** - Robust code implementation
 - **Athena** - Strategic analysis and planning
 - **Themis** - Testing and quality assurance
+- **Concilium** - Divine council facilitator
+- **Vulcan** - Tool access management
 - **Plus 11 more specialists**
 
 ### 2. **Natural Collaboration**

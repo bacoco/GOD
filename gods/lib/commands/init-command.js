@@ -132,9 +132,26 @@ export class InitCommand {
 
       console.log(chalk.gray('─'.repeat(50)));
 
+      // Summon Concilium for project planning council
+      console.log(chalk.blue('\n[Zeus]: ') + 'Let me convene the divine council to discuss the best approach...\n');
+      
+      // Create Concilium instance
+      const concilium = await this.pantheon.createClaudeFlowAgent('concilium', {
+        name: 'concilium-facilitator',
+        type: 'coordinator',
+        instructions: 'Facilitate a planning meeting for the project'
+      });
+      
+      // Host initial planning council
+      const councilDecisions = await this.hostPlanningCouncil(session, projectData, concilium);
+      
+      // Update project data with council decisions
+      projectData.councilDecisions = councilDecisions;
+      await this.state.updateContext({ councilDecisions });
+
       // Ask about implementation
       const proceed = await this.conversation.rl.question(
-        chalk.cyan('\nWould you like me to start building this? (yes/no): ')
+        chalk.cyan('\nWould you like me to start building this with the agreed approach? (yes/no): ')
       );
 
       if (proceed.toLowerCase() === 'yes' || proceed.toLowerCase() === 'y') {
@@ -185,22 +202,70 @@ export class InitCommand {
       const projectId = session.id || 'pantheon-' + Date.now();
       this.mdPersistence.setProject(projectId, projectData.discovery.projectIdea);
       
-      // Step 1: Generate agent specifications based on PRD
+      // Step 1: Generate agent specifications based on PRD and council decisions
       console.log(chalk.gray('[1/5] Analyzing requirements and generating agent specifications...'));
-      const agentSpecs = await this.specGenerator.generateSpecs(projectData);
-      console.log(chalk.green(`✓ Generated ${agentSpecs.length} specialized agent specifications`));
+      // Pass council decisions to influence agent generation
+      const enhancedProjectData = {
+        ...projectData,
+        architecture: projectData.councilDecisions?.architecture,
+        toolStrategy: projectData.councilDecisions?.toolAllocationStrategy
+      };
+      const agentSpecs = await this.specGenerator.generateSpecs(enhancedProjectData);
+      
+      // Filter specs based on council-assigned responsibilities
+      const assignedGods = Object.keys(projectData.councilDecisions?.responsibilities || {});
+      const filteredSpecs = agentSpecs.filter(spec => {
+        const godName = spec.specialization?.parentGod;
+        return !godName || assignedGods.includes(godName.toLowerCase()) || godName === 'zeus';
+      });
+      
+      console.log(chalk.green(`✓ Generated ${filteredSpecs.length} specialized agent specifications`));
       
       // Step 2: Process each agent spec through the MD pipeline
       const customAgents = [];
       
-      for (const spec of agentSpecs) {
+      // Check if we need to summon Vulcan for dynamic tool allocation
+      let vulcan = null;
+      if (projectData.councilDecisions?.toolAllocationStrategy === 'dynamic') {
+        console.log(chalk.gray('\n[Summoning Vulcan for dynamic tool allocation...]'));
+        vulcan = await this.pantheon.createClaudeFlowAgent('vulcan', {
+          name: 'vulcan-tool-broker',
+          type: 'coordinator',
+          instructions: 'Manage dynamic tool allocation for gods'
+        });
+      }
+      
+      for (const spec of filteredSpecs) {
         console.log(chalk.gray(`\n[2/5] Processing ${spec.displayName}...`));
         
-        // Allocate tools based on capabilities
-        console.log(chalk.gray(`  • Allocating tools from 87 MCP tools...`));
-        const allocatedTools = await this.toolAllocator.allocateTools(spec);
-        spec.tools = allocatedTools;
-        console.log(chalk.gray(`  • Allocated ${allocatedTools.length} specialized tools`));
+        // Tool allocation based on strategy
+        if (projectData.councilDecisions?.toolAllocationStrategy === 'dynamic' && vulcan) {
+          // Dynamic allocation through Vulcan
+          console.log(chalk.orange(`  • [Vulcan]: Analyzing tool needs for ${spec.displayName}...`));
+          
+          // Simulate Vulcan's analysis
+          const godPurpose = spec.specialization?.focus || spec.description;
+          console.log(chalk.orange(`  • [Vulcan]: Based on "${godPurpose}", I recommend:`));
+          
+          // Get initial minimal tools
+          const minimalTools = await this.getMinimalToolsForGod(spec);
+          spec.tools = minimalTools;
+          
+          console.log(chalk.gray(`  • Starting with ${minimalTools.length} essential tools`));
+          console.log(chalk.orange(`  • [Vulcan]: Additional tools can be requested during development`));
+          
+          // Store Vulcan's recommendations for later
+          spec.vulcanRecommendations = {
+            essential: minimalTools,
+            onDemand: await this.toolAllocator.allocateTools(spec) // Full list for reference
+          };
+        } else {
+          // Static allocation (original behavior)
+          console.log(chalk.gray(`  • Allocating tools from 87 MCP tools...`));
+          const allocatedTools = await this.toolAllocator.allocateTools(spec);
+          spec.tools = allocatedTools;
+          console.log(chalk.gray(`  • Allocated ${allocatedTools.length} specialized tools`));
+        }
         
         // Compose hybrid agent from base agents
         console.log(chalk.gray(`  • Composing from ${spec.baseAgents.length} base agents...`));
@@ -258,24 +323,27 @@ export class InitCommand {
       // Step 4: Execute orchestration with custom agents
       console.log(chalk.gray('\n[4/5] Initiating divine orchestration...\n'));
       
-      // Create orchestration task with references to custom MD files
+      // Create orchestration task with references to custom MD files and council decisions
       const orchestrationTask = {
         type: 'project-creation',
         projectData: projectData,
         sessionId: session.id,
+        councilDecisions: projectData.councilDecisions,
         customAgents: customAgents.map(a => ({
           name: a.spec.name,
           mdPath: a.mdPath,
           godName: a.godName,
           capabilities: a.spec.capabilities,
-          tools: a.spec.tools
+          tools: a.spec.tools,
+          vulcanRecommendations: a.spec.vulcanRecommendations
         })),
         requirements: {
-          architecture: true,
+          architecture: projectData.councilDecisions?.architecture || 'modular-monolith',
           implementation: true,
           ui: projectData.design || projectData.plan?.mvp_features?.includes('UI'),
           testing: true,
-          documentation: true
+          documentation: true,
+          toolStrategy: projectData.councilDecisions?.toolAllocationStrategy || 'static'
         }
       };
       
@@ -398,6 +466,178 @@ Remember: You are orchestrating real work, not just planning. Each god should pr
       generatedBy: 'claude-flow-agents',
       timestamp: Date.now()
     });
+  }
+
+  /**
+   * Host a planning council with the gods
+   * @param {Object} session - Current session
+   * @param {Object} projectData - Project data from conversation
+   * @param {Object} concilium - Concilium facilitator
+   * @returns {Object} Council decisions
+   */
+  async hostPlanningCouncil(session, projectData, concilium) {
+    console.log(chalk.magenta('🏛️ [Concilium]: ') + 'Welcome to the Divine Planning Council!\n');
+    console.log(chalk.gray('The gods are gathering to discuss your project...\n'));
+    
+    const decisions = {
+      architecture: null,
+      primaryTechnologies: {},
+      toolAllocationStrategy: 'dynamic', // Will use Vulcan
+      responsibilities: {},
+      approachVotes: {}
+    };
+    
+    // Simulate gods joining the council
+    console.log(chalk.yellow('[Concilium]: ') + 'Daedalus, Hephaestus, and Apollo have joined the council.\n');
+    
+    // Architecture discussion
+    console.log(chalk.cyan('[Daedalus]: ') + 'Based on the requirements, I see several architectural approaches:');
+    
+    const hasRealtime = projectData.plan?.mvp_features?.toLowerCase().includes('real-time') || 
+                       projectData.plan?.mvp_features?.toLowerCase().includes('chat');
+    const hasAuth = projectData.plan?.mvp_features?.toLowerCase().includes('auth') ||
+                   projectData.plan?.mvp_features?.toLowerCase().includes('user');
+    
+    if (hasRealtime) {
+      console.log('  1. Microservices with separate real-time service');
+      console.log('  2. Monolithic with integrated WebSocket handling');
+      console.log('  3. Event-driven architecture with message queuing\n');
+    } else {
+      console.log('  1. Traditional monolithic architecture');
+      console.log('  2. Modular monolith with clear boundaries');
+      console.log('  3. Microservices for future scalability\n');
+    }
+    
+    console.log(chalk.green('[Hephaestus]: ') + 'Each approach has trade-offs in complexity and development speed.');
+    console.log(chalk.blue('[Apollo]: ') + 'The UI requirements would work well with any of these.\n');
+    
+    // Get user input on architecture
+    const archChoice = await this.conversation.rl.question(
+      chalk.cyan('[Concilium]: Which architectural approach do you prefer? (1-3): ')
+    );
+    
+    decisions.architecture = this.mapArchitectureChoice(archChoice, hasRealtime);
+    
+    console.log(chalk.magenta('\n[Concilium]: ') + `The council agrees on ${decisions.architecture} architecture.\n`);
+    
+    // Technology stack discussion
+    if (projectData.discovery?.platform === 'web' || !projectData.discovery?.platform) {
+      console.log(chalk.cyan('[Hephaestus]: ') + 'For the technology stack, I recommend:');
+      console.log('  • Backend: Node.js with Express or Fastify');
+      console.log('  • Database: ' + (hasRealtime ? 'MongoDB for flexibility' : 'PostgreSQL for reliability'));
+      console.log('  • Frontend: ' + (projectData.design ? 'React with styled-components' : 'Your choice of framework'));
+      
+      if (hasAuth) {
+        console.log(chalk.yellow('\n[Themis]: ') + 'For authentication, we should use JWT with secure session management.');
+      }
+      
+      const techApproval = await this.conversation.rl.question(
+        chalk.cyan('\n[Concilium]: Do you approve these technology choices? (yes/no/modify): ')
+      );
+      
+      if (techApproval.toLowerCase() === 'modify') {
+        // Allow custom tech choices
+        console.log(chalk.magenta('[Concilium]: ') + 'Please share your technology preferences:');
+        const customTech = await this.conversation.rl.question('Your preferences: ');
+        decisions.primaryTechnologies.custom = customTech;
+      } else {
+        decisions.primaryTechnologies = {
+          backend: 'Node.js',
+          database: hasRealtime ? 'MongoDB' : 'PostgreSQL',
+          frontend: projectData.design ? 'React' : 'TBD'
+        };
+      }
+    }
+    
+    // Summon Vulcan for tool discussion
+    console.log(chalk.red('\n[Concilium]: ') + 'Let me summon Vulcan to discuss tool allocation...\n');
+    console.log(chalk.orange('[Vulcan]: ') + 'Greetings! I manage access to the 87 divine tools.');
+    console.log(chalk.orange('[Vulcan]: ') + 'Based on this project, I recommend dynamic tool allocation:');
+    console.log('  • Gods will request tools as needed during development');
+    console.log('  • You\'ll approve tool grants for transparency');
+    console.log('  • This ensures gods only get tools they actually need\n');
+    
+    const vulcanApproach = await this.conversation.rl.question(
+      chalk.cyan('[Concilium]: Do you prefer dynamic tool allocation or pre-assign all tools? (dynamic/static): ')
+    );
+    
+    decisions.toolAllocationStrategy = vulcanApproach.toLowerCase() === 'static' ? 'static' : 'dynamic';
+    
+    // Assign primary responsibilities
+    console.log(chalk.magenta('\n[Concilium]: ') + 'The council will now assign primary responsibilities:\n');
+    
+    decisions.responsibilities = {
+      'Daedalus': `Architecture design and ${decisions.architecture} structure`,
+      'Hephaestus': 'Core implementation and backend development',
+      'Apollo': projectData.design ? 'User interface and experience' : null,
+      'Themis': 'Testing and quality assurance',
+      'Hermes': hasRealtime ? 'Real-time features and messaging' : null,
+      'Aegis': hasAuth ? 'Security and authentication' : null
+    };
+    
+    // Remove null responsibilities
+    Object.keys(decisions.responsibilities).forEach(god => {
+      if (!decisions.responsibilities[god]) {
+        delete decisions.responsibilities[god];
+      }
+    });
+    
+    // Show summary
+    console.log(chalk.green('📋 Council Decisions Summary:'));
+    console.log(chalk.gray('─'.repeat(50)));
+    console.log(`  Architecture: ${chalk.white(decisions.architecture)}`);
+    console.log(`  Tool Strategy: ${chalk.white(decisions.toolAllocationStrategy)}`);
+    console.log('  God Assignments:');
+    Object.entries(decisions.responsibilities).forEach(([god, resp]) => {
+      console.log(`    • ${chalk.yellow(god)}: ${resp}`);
+    });
+    console.log(chalk.gray('─'.repeat(50)));
+    
+    return decisions;
+  }
+
+  /**
+   * Get minimal essential tools for a god
+   * @param {Object} spec - Agent specification
+   * @returns {Array} Essential tools only
+   */
+  getMinimalToolsForGod(spec) {
+    const godName = spec.specialization?.parentGod || spec.name;
+    
+    // Define minimal tool sets for each god type
+    const minimalToolSets = {
+      'zeus': ['task_orchestrate', 'agent_spawn', 'memory_store'],
+      'daedalus': ['architecture_design', 'pattern_matcher'],
+      'hephaestus': ['code_generate', 'code_analyze'],
+      'apollo': ['ui_generate', 'component_create'],
+      'themis': ['test_generate', 'test_execute'],
+      'hermes': ['websocket_manager', 'event_stream'],
+      'aegis': ['auth_manager', 'security_scan'],
+      'athena': ['ml_train', 'pattern_extract'],
+      'prometheus': ['task_orchestrate', 'memory_store']
+    };
+    
+    return minimalToolSets[godName.toLowerCase()] || ['task_orchestrate'];
+  }
+
+  /**
+   * Map architecture choice to named architecture
+   */
+  mapArchitectureChoice(choice, hasRealtime) {
+    const realtimeArchitectures = {
+      '1': 'microservices',
+      '2': 'monolithic-websocket',
+      '3': 'event-driven'
+    };
+    
+    const standardArchitectures = {
+      '1': 'monolithic',
+      '2': 'modular-monolith',
+      '3': 'microservices'
+    };
+    
+    const architectures = hasRealtime ? realtimeArchitectures : standardArchitectures;
+    return architectures[choice] || 'modular-monolith';
   }
 
   /**

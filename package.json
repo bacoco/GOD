@@ -14,9 +14,7 @@
     "gods:init": "node claude-pantheon.js '/gods init'",
     "gods:status": "node claude-pantheon.js '/gods status'",
     "gods:projects": "node claude-pantheon.js '/gods projects'",
-    "test:commands": "node test-gods-commands.js",
     "demo": "node examples/conversational-interface-demo.js",
-    "verify": "node verify-installation.js",
     "quickstart": "node claude-pantheon.js '/gods help' && echo '\nRun: npm run gods:init'",
     "postinstall": "echo '\n⚠️  IMPORTANT: Run \"node install-claude-flow.js\" to install Claude-Flow (required)\n'",
     "install:claude-flow": "node install-claude-flow.js"

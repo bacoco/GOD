@@ -70,6 +70,8 @@ Each god specializes in different aspects of development:
 - **Hermes** - Real-time features and messaging
 - **Prometheus** - Planning and feature definition
 - **Daedalus** - System architecture design
+- **Concilium** - Facilitates divine councils for collaborative decisions
+- **Vulcan** - Manages tool access and grants permissions dynamically
 - **Aegis** - Security and authentication
 - **Plutus** - Payments and monetization
 - **Hestia** - User management and profiles
