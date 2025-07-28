@@ -31,6 +31,10 @@ build/
 memory-store.json
 hive-mind.db
 
+# Pantheon session state
+.pantheon-state/
+gods/.pantheon-state/
+
 # Testing
 coverage/
 .nyc_output/

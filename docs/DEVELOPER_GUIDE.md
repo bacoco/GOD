@@ -19,6 +19,12 @@ Pantheon System
 │   ├── Zeus - Supreme orchestrator
 │   ├── Hephaestus - Development specialist
 │   └── [14 more god implementations]
+├── Conversational Interface (gods/lib/) ← NEW
+│   ├── command-handler.js - Routes /gods commands
+│   ├── conversational-interface.js - Natural dialogue
+│   ├── conversation-state.js - Session persistence
+│   ├── project-generator.js - Code generation
+│   └── commands/ - Individual command implementations
 ├── Enhancement Layers
 │   ├── Metacognition - Self-improvement system
 │   ├── Dynamic Workflows - Workflow generation
@@ -95,6 +101,61 @@ const zeus = await godFactory.createGod('zeus', {
   maxAgents: 20,
   orchestrationMode: 'hybrid'
 });
+```
+
+## Conversational Interface (NEW)
+
+The conversational interface provides natural dialogue-based interaction with Pantheon gods through /gods commands.
+
+### Command System
+
+```javascript
+// Route /gods commands
+import { GodsCommandHandler } from './gods/lib/command-handler.js';
+
+const handler = new GodsCommandHandler(pantheon);
+await handler.execute('/gods init "project idea"');
+```
+
+### Conversation Management
+
+```javascript
+// Manage conversation state
+import { ConversationState } from './gods/lib/conversation-state.js';
+
+const state = new ConversationState();
+const session = await state.startSession(projectName);
+
+// Track responses
+await state.addResponse(question, answer);
+
+// Transition between gods
+await state.transitionToGod('Prometheus', 'Moving to feature planning');
+```
+
+### Natural Dialogue
+
+```javascript
+// Create natural conversations
+import { ConversationalInterface } from './gods/lib/conversational-interface.js';
+
+const conversation = new ConversationalInterface();
+
+// God speaks with personality
+conversation.godSpeak('Zeus', 'Welcome! Let me understand your vision...');
+
+// Ask questions naturally
+const answer = await conversation.godAsk('Zeus', 'What are your main goals?');
+```
+
+### Project Generation
+
+```javascript
+// Generate projects from conversations
+import { ProjectGenerator } from './gods/lib/project-generator.js';
+
+const generator = new ProjectGenerator();
+await generator.generateProject(session, conversationData);
 ```
 
 ## Advanced Features

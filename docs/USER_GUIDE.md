@@ -4,10 +4,14 @@ Welcome to Pantheon, where you don't write code or manage technical details. Ins
 
 ## Getting Started
 
-To begin any project, you need only speak your intention:
+To begin any project with Pantheon in Claude Code CLI:
 
-```
-/gods init "I want to build a recipe sharing platform"
+```bash
+# Make sure you're in the Pantheon directory
+cd pantheon
+
+# Start your project with a simple command
+node claude-pantheon.js "/gods init 'I want to build a recipe sharing platform'"
 ```
 
 That's it. Zeus will greet you and guide you through everything else.
@@ -53,32 +57,36 @@ You never manage these transitions. The gods handle everything.
 While most of your interaction is conversational, a few simple commands help you navigate:
 
 ### Starting Fresh
-```
-/gods init "Your project idea"
+```bash
+node claude-pantheon.js "/gods init 'Your project idea'"
 ```
 Begin a new project with your vision.
 
 ### Checking Progress
-```
-/gods status
+```bash
+node claude-pantheon.js "/gods status"
 ```
 See what the gods are currently working on.
 
 ### Listing Projects
-```
-/gods projects
+```bash
+node claude-pantheon.js "/gods projects"
 ```
 View all projects the council is managing for you.
 
 ### Getting Help
-```
-/gods help
+```bash
+node claude-pantheon.js "/gods help"
+# Or get help for a specific command
+node claude-pantheon.js "/gods help init"
 ```
 The gods explain how they can assist you.
 
 ### Resuming Work
-```
-/gods resume "Project name"
+```bash
+node claude-pantheon.js "/gods resume"
+# Or resume a specific project
+node claude-pantheon.js "/gods resume project-name"
 ```
 Continue a previous conversation where you left off.
 
@@ -159,8 +167,8 @@ Change your mind, explore alternatives, ask "what if" - the gods adapt instantly
 
 Ready to begin? Simply share your idea:
 
-```
-/gods init "Your vision here"
+```bash
+node claude-pantheon.js "/gods init 'Your vision here'"
 ```
 
 The council awaits your command.

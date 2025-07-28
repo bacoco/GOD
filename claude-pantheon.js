@@ -7,6 +7,7 @@
 
 import { PantheonCore } from './gods/lib/pantheon-core.js';
 import { conversationalProjectPlanning } from './gods/workflows/conversational-planning.js';
+import { GodsCommandHandler } from './gods/lib/command-handler.js';
 import chalk from 'chalk';
 
 // Parse command from Claude Code
@@ -24,6 +25,13 @@ async function main() {
     });
     
     await pantheon.initialize();
+    
+    // Check if it's a /gods command
+    if (GodsCommandHandler.isGodsCommand(command)) {
+      const commandHandler = new GodsCommandHandler(pantheon);
+      await commandHandler.execute(command);
+      return;
+    }
     
     // Parse the command to determine what to do
     if (command.toLowerCase().includes('help') || command === '') {
@@ -115,6 +123,13 @@ function showHelp() {
 🏛️ Pantheon - AI God Agent System for Claude Code
 
 Usage:
+  Conversational Commands:
+    /gods init "your project idea"  - Start a new project
+    /gods status                    - Check project status
+    /gods projects                  - List all projects
+    /gods resume [project]          - Continue a project
+    /gods help                      - Show detailed help
+    
   Build/Create something:
     "Build a web app with user authentication"
     "Create a REST API for a blog"
@@ -140,9 +155,13 @@ Available Gods:
   • And 10 more specialists...
 
 Examples:
+  claude-pantheon "/gods init 'I want to build a task tracker'"
   claude-pantheon "Build an e-commerce platform"
   claude-pantheon "Summon Apollo to design a dashboard"
   claude-pantheon "Create REST API with authentication"
+  
+Quick Start:
+  Try: /gods init "your idea here"
   `));
 }
 
