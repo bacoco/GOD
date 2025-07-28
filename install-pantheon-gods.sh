@@ -81,26 +81,51 @@ echo ""
 echo "📦 Installing global 'gods' command..."
 
 # Create gods command wrapper
-WRAPPER_CONTENT='#!/bin/bash
+WRAPPER_CONTENT="#!/bin/bash
 # Pantheon Gods Activator
 
-if [ "$1" = "help" ] || [ "$1" = "--help" ]; then
-    echo "🏛️ Pantheon Gods - Activate divine coding assistance"
-    echo ""
-    echo "Usage: gods"
-    echo ""
-    echo "This activates Pantheon commands in your current project."
-    echo "After activation, use /gods commands in Claude."
+# Find Pantheon installation
+PANTHEON_DIR=\"\"
+if [ -d \"\$HOME/develop/pantheon/claude-flow\" ]; then
+    PANTHEON_DIR=\"\$HOME/develop/pantheon\"
+elif [ -d \"$SCRIPT_DIR/claude-flow\" ]; then
+    PANTHEON_DIR=\"$SCRIPT_DIR\"
+fi
+
+if [ \"\$1\" = \"help\" ] || [ \"\$1\" = \"--help\" ]; then
+    echo \"🏛️ Pantheon Gods - Activate divine coding assistance\"
+    echo \"\"
+    echo \"Usage: gods\"
+    echo \"\"
+    echo \"This activates Pantheon commands in your current project.\"
+    echo \"After activation, use /gods commands in Claude.\"
 else
-    npx claude-flow@alpha init --quiet 2>/dev/null || npx claude-flow@alpha init
-    echo ""
-    echo "✨ Pantheon Gods activated!"
-    echo ""
-    echo "🏛️ Use in Claude:"
-    echo "  /gods-init \"your project idea\""
-    echo "  /gods-chat"
-    echo "  /gods"
-fi'
+    if [ -z \"\$PANTHEON_DIR\" ]; then
+        echo \"❌ Error: Pantheon installation not found!\"
+        echo \"Please ensure Pantheon is installed at ~/develop/pantheon\"
+        exit 1
+    fi
+    
+    # Use local Pantheon claude-flow
+    CLAUDE_FLOW_BIN=\"\$PANTHEON_DIR/claude-flow/bin/claude-flow\"
+    
+    if [ ! -f \"\$CLAUDE_FLOW_BIN\" ]; then
+        echo \"❌ Error: Claude-Flow binary not found at \$CLAUDE_FLOW_BIN\"
+        echo \"Please run: cd \$PANTHEON_DIR/claude-flow && npm install\"
+        exit 1
+    fi
+    
+    # Run local claude-flow init
+    \"\$CLAUDE_FLOW_BIN\" init --quiet 2>/dev/null || \"\$CLAUDE_FLOW_BIN\" init
+    
+    echo \"\"
+    echo \"✨ Pantheon Gods activated!\"
+    echo \"\"
+    echo \"🏛️ Use in Claude:\"
+    echo \"  /gods-init \\\"your project idea\\\"\"
+    echo \"  /gods-chat\"
+    echo \"  /gods\"
+fi"
 
 # Create local bin directory if it doesn't exist
 mkdir -p "$HOME/.local/bin"
