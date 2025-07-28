@@ -105,7 +105,7 @@ npm install
 cd claude-flow && npm install && cd ..
 
 # Start the MCP server (keep this running)
-node pantheon-mcp-server.js
+./start-pantheon-mcp.sh
 ```
 
 ### Configure Claude (One-Time)
@@ -220,7 +220,7 @@ In Claude, simply type:
 
 ---
 
-📖 **Documentation**: [MCP Setup](MCP_SETUP.md) | [Test Plan](TEST_PLAN.md) | [Examples](docs/EXAMPLES.md) | [User Guide](docs/USER_GUIDE.md)
+📖 **Documentation**: [Quick Usage](USAGE_MCP.md) | [MCP Setup](MCP_SETUP.md) | [Test Plan](TEST_PLAN.md) | [Examples](docs/EXAMPLES.md)
 
 🤝 **Community**: [GitHub Issues](https://github.com/bacoco/GOD/issues) | [Discussions](https://github.com/bacoco/GOD/discussions)
 
