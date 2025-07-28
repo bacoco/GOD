@@ -88,3 +88,7 @@ Ready to create something amazing? The gods await:
 📖 **Want to dive deeper?** Read the [complete guide](docs/USER_GUIDE.md).
 
 🛠️ **Technical minded?** See the [developer documentation](docs/DEVELOPER_GUIDE.md).
+
+---
+
+*"From chaos comes order, from many comes one. The gods of Pantheon await your command."* 🏛️
