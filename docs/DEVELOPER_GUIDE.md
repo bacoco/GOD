@@ -91,7 +91,7 @@ pantheon/
 ### Local Development
 ```bash
 # Clone and install
-git clone https://github.com/bacoco/pantheon.git
+git clone https://github.com/bacoco/GOD.git pantheon
 cd pantheon
 npm install
 

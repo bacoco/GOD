@@ -10,7 +10,7 @@ Pantheon is a conversational AI system that transforms your ideas into working s
 
 ```bash
 # Clone the repository
-git clone https://github.com/bacoco/pantheon.git
+git clone https://github.com/bacoco/GOD.git pantheon
 cd pantheon
 
 # Run the installer (handles everything automatically)

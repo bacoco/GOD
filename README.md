@@ -97,7 +97,7 @@ Start simple, evolve naturally:
 
 ```bash
 # Clone Pantheon
-git clone https://github.com/bacoco/pantheon.git
+git clone https://github.com/bacoco/GOD.git pantheon
 cd pantheon
 
 # Run the installer
@@ -208,9 +208,9 @@ gods
 
 📖 **Documentation**: [Examples](docs/EXAMPLES.md) | [User Guide](docs/USER_GUIDE.md) | [Developer Guide](docs/DEVELOPER_GUIDE.md)
 
-🤝 **Community**: [GitHub Issues](https://github.com/bacoco/pantheon/issues) | [Discussions](https://github.com/bacoco/pantheon/discussions)
+🤝 **Community**: [GitHub Issues](https://github.com/bacoco/GOD/issues) | [Discussions](https://github.com/bacoco/GOD/discussions)
 
-⭐ **Love Pantheon?** Star us on [GitHub](https://github.com/bacoco/pantheon)!
+⭐ **Love Pantheon?** Star us on [GitHub](https://github.com/bacoco/GOD)!
 
 ---
 

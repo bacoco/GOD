@@ -140,7 +140,7 @@ Start simple, add features through continued conversation.
 
 ```bash
 # Install Pantheon
-git clone https://github.com/bacoco/pantheon.git
+git clone https://github.com/bacoco/GOD.git pantheon
 cd pantheon && npm install
 
 # Install Claude-Flow (required)
