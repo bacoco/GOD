@@ -65,16 +65,66 @@ echo ""
 
 # Install global 'gods' command
 echo "📦 Installing global 'gods' command..."
-./install-gods-global.sh > /dev/null 2>&1
 
+# Create gods command wrapper
+WRAPPER_CONTENT='#!/bin/bash
+# Pantheon Gods Activator
+
+if [ "$1" = "help" ] || [ "$1" = "--help" ]; then
+    echo "🏛️ Pantheon Gods - Activate divine coding assistance"
+    echo ""
+    echo "Usage: gods"
+    echo ""
+    echo "This activates Pantheon commands in your current project."
+    echo "After activation, use /gods commands in Claude."
+else
+    npx claude-flow@alpha init --quiet 2>/dev/null || npx claude-flow@alpha init
+    echo ""
+    echo "✨ Pantheon Gods activated!"
+    echo ""
+    echo "🏛️ Use in Claude:"
+    echo "  /gods-init \"your project idea\""
+    echo "  /gods-chat"
+    echo "  /gods"
+fi'
+
+# Create local bin directory if it doesn't exist
+mkdir -p "$HOME/.local/bin"
+
+# Write the wrapper script
+echo "$WRAPPER_CONTENT" > "$HOME/.local/bin/gods"
+chmod +x "$HOME/.local/bin/gods"
+
+# Detect shell and add to appropriate config
+if [ -n "$ZSH_VERSION" ]; then
+    CONFIG_FILE="$HOME/.zshrc"
+elif [ -n "$BASH_VERSION" ]; then
+    CONFIG_FILE="$HOME/.bashrc"
+else
+    CONFIG_FILE="$HOME/.bashrc"
+fi
+
+# Check if PATH includes .local/bin
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    echo "" >> "$CONFIG_FILE"
+    echo "# Pantheon Gods" >> "$CONFIG_FILE"
+    echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> "$CONFIG_FILE"
+    echo "✅ Added ~/.local/bin to PATH in $CONFIG_FILE"
+    echo "⚠️  Run 'source $CONFIG_FILE' or restart your terminal"
+else
+    echo "✅ 'gods' command installed"
+fi
+
+echo ""
 echo "🏛️ Installation complete! 🎉"
 echo ""
-echo "✨ Super Simple Usage:"
-echo "  1. Go to any project: cd your-project"
-echo "  2. Type: gods"
-echo "  3. Use /gods in Claude!"
+echo "✨ Next Steps:"
+echo "  1. Restart your terminal or run: source $CONFIG_FILE"
+echo "  2. Go to any project: cd your-project"
+echo "  3. Type: gods"
+echo "  4. Use /gods commands in Claude!"
 echo ""
-echo "That's it! Just 'gods' to activate the pantheon!"
+echo "That's it! Just 'gods' to activate divine coding assistance!"
 
 # Remove marker file
 rm -f "$SCRIPT_DIR/.pantheon-installing"

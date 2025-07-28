@@ -7,6 +7,8 @@
 git clone https://github.com/bacoco/pantheon.git
 cd pantheon
 ./install-pantheon-gods.sh
+
+# Restart terminal or run: source ~/.bashrc (or ~/.zshrc)
 ```
 
 ## Usage (Forever After)
