@@ -1,46 +1,61 @@
 # 🏛️ Pantheon - Quick Start Guide
 
-## One-Time Installation (30 seconds)
+## One-Time Setup (2 minutes)
+
+### 1. Install Pantheon
 
 ```bash
 # Clone and install
 git clone https://github.com/bacoco/GOD.git pantheon
 cd pantheon
-./install-pantheon-gods.sh
-
-# Restart terminal or run: source ~/.bashrc (or ~/.zshrc)
+npm install
+cd claude-flow && npm install && cd ..
 ```
+
+### 2. Configure Claude
+
+Add to your Claude MCP configuration:
+
+**macOS**: `~/Library/Application Support/Claude/claude_config.json`  
+**Linux**: `~/.config/Claude/claude_config.json`  
+**Windows**: `%APPDATA%\Claude\claude_config.json`
+
+```json
+{
+  "mcpServers": {
+    "pantheon": {
+      "command": "node",
+      "args": ["/path/to/pantheon/pantheon-mcp-server.js"],
+      "env": {
+        "NODE_ENV": "production",
+        "CLAUDE_FLOW_PATH": "/path/to/pantheon/claude-flow"
+      }
+    }
+  }
+}
+```
+
+### 3. Restart Claude
+
+Close and reopen Claude for the changes to take effect.
 
 ## Usage (Forever After)
 
-```bash
-# 1. Go to any project
-cd my-awesome-project
+In Claude, simply use these commands:
 
-# 2. Type one word
-gods
-
-# 3. In Claude, use commands like:
+```
 /gods-init "build a task management app"
 /gods-chat
-/gods
+/gods-council
 ```
 
-That's it! Just `gods` to activate divine coding! 🏛️⚡
+That's it! The gods are now built into Claude! 🏛️⚡
 
-## Available Commands in Claude
+## Available Commands
 
-After running `gods` in your project:
-
-- `/gods` - Overview of all commands
 - `/gods-init` - Start new project with Zeus
-- `/gods-council` - Convene divine meeting
-- `/gods-tools` - Request tools from Vulcan
-- `/gods-chat` - Continue conversations
-- `/gods-status` - Check project progress
-- `/gods-resume` - Resume existing project
-- `/gods-list` - See all available gods
-- `/gods-help` - Detailed help
+- `/gods-chat` - Continue conversation with gods
+- `/gods-council` - Convene divine council meeting
 
 ## Quick Examples
 
@@ -49,21 +64,49 @@ After running `gods` in your project:
 /gods-init "I need a modern blog platform with comments"
 ```
 
-### Checking Progress
+Zeus will:
+1. Ask clarifying questions
+2. Bring in specialist gods
+3. Create your complete project
+
+### Continuing Work
 ```
-/gods-status
+/gods-chat
 ```
 
-### Resuming Work
+Resume your conversation with the gods anytime.
+
+### Major Decisions
 ```
-/gods-resume
+/gods-council
+Choose: Architecture Review
+Topic: "Should we use REST or GraphQL?"
 ```
 
-## No Complex Commands!
+## How It Works
 
-After installation, you literally just:
-1. `cd` to your project
-2. Type `gods`
-3. Use `/gods` commands in Claude
+1. **You describe** what you want to build
+2. **Zeus orchestrates** the project
+3. **Specialist gods** join as needed:
+   - Apollo for design
+   - Hephaestus for backend
+   - Athena for AI features
+   - And many more!
+4. **Real code** is generated
+5. **You own everything** - no lock-in
 
-No `npx`, no `claude-flow`, no complexity. Just `gods`! ✨
+## Troubleshooting
+
+If commands don't appear:
+1. Make sure MCP server path is correct in config
+2. Restart Claude completely
+3. Check [MCP Setup Guide](MCP_SETUP.md) for details
+
+## No Terminal Needed!
+
+Unlike before, you don't need to:
+- Run any terminal commands
+- Navigate to project directories  
+- Execute complex scripts
+
+Everything happens directly in Claude! ✨

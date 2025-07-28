@@ -1,8 +1,8 @@
-# 🏛️ Pantheon - AI Development Team in Your Terminal
+# 🏛️ Pantheon - AI Development Team in Claude
 
 > Transform ideas into working software through conversation. No coding required.
 > 
-> **⚡ Powered by Claude-Flow**: Real AI agents build your project, not templates!
+> **⚡ Now with MCP Integration**: Real AI agents build your project directly in Claude!
 
 ## The Problem We Solve
 
@@ -93,41 +93,57 @@ Start simple, evolve naturally:
 
 ## Installation & Setup
 
-### One-Time Installation (30 seconds)
+### One-Time Installation (2 minutes)
 
 ```bash
 # Clone Pantheon
 git clone https://github.com/bacoco/GOD.git pantheon
 cd pantheon
 
-# Run the installer
-./install-pantheon-gods.sh
+# Install dependencies
+npm install
+cd claude-flow && npm install && cd ..
+
+# Start the MCP server (keep this running)
+node pantheon-mcp-server.js
 ```
 
-That's it! The installer handles everything including Claude-Flow setup.
+### Configure Claude (One-Time)
+
+Add Pantheon to your Claude MCP configuration:
+
+**macOS**: `~/Library/Application Support/Claude/claude_config.json`  
+**Linux**: `~/.config/Claude/claude_config.json`  
+**Windows**: `%APPDATA%\Claude\claude_config.json`
+
+```json
+{
+  "mcpServers": {
+    "pantheon": {
+      "command": "node",
+      "args": ["/path/to/pantheon/pantheon-mcp-server.js"],
+      "env": {
+        "NODE_ENV": "production",
+        "CLAUDE_FLOW_PATH": "/path/to/pantheon/claude-flow"
+      }
+    }
+  }
+}
+```
 
 ### Using Pantheon (Forever After)
 
-```bash
-# 1. Go to any project
-cd my-awesome-project
+Simply use the slash commands in Claude:
+- `/gods-init` - Start a new project
+- `/gods-chat` - Continue conversation  
+- `/gods-council` - Convene divine council
 
-# 2. Type one word
-gods
-
-# 3. In Claude, type
-/gods-init "your amazing idea"
-```
-
-**✨ No complex commands needed!** Just `gods` to activate divine coding assistance.
+**✨ No terminal commands needed!** The gods are built right into Claude.
 
 ## See It In Action
 
-```bash
-# Activate gods in your project
-gods
-
-# Then in Claude:
+In Claude, simply type:
+```
 /gods-init "I want to create a recipe sharing platform for home cooks"
 ```
 
@@ -178,17 +194,18 @@ This is powered by:
 
 ## Start Building Today
 
-```bash
-# Step 1: Activate in your project
-gods
-
-# Step 2: Use these commands in Claude
-/gods-init   "Describe your dream project"
-/gods-status  # Check progress
-/gods-resume  # Continue anytime
-/gods-chat    # Talk with any god
-/gods         # See all commands
+Use these commands directly in Claude:
 ```
+/gods-init    "Describe your dream project"
+/gods-chat    # Continue conversation with gods
+/gods-council # Convene divine council for decisions
+```
+
+The gods will:
+- Ask clarifying questions
+- Create your project structure
+- Generate working code
+- Handle all technical details
 
 ## Join the Revolution
 
@@ -196,17 +213,14 @@ Software creation shouldn't be limited to programmers. With Pantheon, if you can
 
 **Ready to bring your ideas to life?**
 
-```bash
-# In your project:
-gods
-
-# In Claude:
+In Claude, simply type:
+```
 /gods-init "What will you create today?"
 ```
 
 ---
 
-📖 **Documentation**: [Examples](docs/EXAMPLES.md) | [User Guide](docs/USER_GUIDE.md) | [Developer Guide](docs/DEVELOPER_GUIDE.md)
+📖 **Documentation**: [MCP Setup](MCP_SETUP.md) | [Test Plan](TEST_PLAN.md) | [Examples](docs/EXAMPLES.md) | [User Guide](docs/USER_GUIDE.md)
 
 🤝 **Community**: [GitHub Issues](https://github.com/bacoco/GOD/issues) | [Discussions](https://github.com/bacoco/GOD/discussions)
 

@@ -5,8 +5,11 @@
   "type": "module",
   "main": "launch.js",
   "scripts": {
-    "start": "node launch.js",
-    "dev": "node launch.js --verbose",
+    "start": "node pantheon-mcp-server.js",
+    "mcp:server": "node pantheon-mcp-server.js",
+    "mcp:install": "./install-pantheon-mcp.sh",
+    "mcp:test": "node pantheon-mcp-server.js --test",
+    "dev": "NODE_ENV=development node pantheon-mcp-server.js",
     "test": "cd gods && npm test",
     "example": "node examples/basic-usage.js",
     "gods": "node claude-pantheon.js",
@@ -15,8 +18,8 @@
     "gods:status": "node claude-pantheon.js '/gods status'",
     "gods:projects": "node claude-pantheon.js '/gods projects'",
     "demo": "node examples/conversational-interface-demo.js",
-    "quickstart": "node claude-pantheon.js '/gods help' && echo '\nRun: npm run gods:init'",
-    "postinstall": "echo '\n⚠️  IMPORTANT: Run \"node install-claude-flow.js\" to install Claude-Flow (required)\n'",
+    "quickstart": "echo '🏛️ Pantheon MCP Server\\nRun: npm run mcp:server\\nThen use /gods-init in Claude!'",
+    "postinstall": "echo '\n⚠️  IMPORTANT: Run ./install-pantheon-mcp.sh to complete setup\n'",
     "install:claude-flow": "node install-claude-flow.js"
   },
   "keywords": [
@@ -30,7 +33,8 @@
   "author": "Pantheon Team",
   "license": "MIT",
   "dependencies": {
-    "chalk": "^5.3.0"
+    "chalk": "^5.3.0",
+    "@modelcontextprotocol/sdk": "^1.0.1"
   },
   "engines": {
     "node": ">=18.0.0"

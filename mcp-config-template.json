@@ -1,0 +1,26 @@
+{
+  "mcpServers": {
+    "pantheon": {
+      "command": "node",
+      "args": ["/Users/loic/develop/pantheon/pantheon-mcp-server.js"],
+      "env": {
+        "NODE_ENV": "production",
+        "CLAUDE_FLOW_PATH": "/Users/loic/develop/pantheon/claude-flow"
+      },
+      "metadata": {
+        "name": "Pantheon",
+        "description": "Divine AI orchestration system - Where gods build software",
+        "version": "1.0.0",
+        "author": "Pantheon Team",
+        "capabilities": [
+          "Project initialization with Zeus",
+          "Multi-god conversations",
+          "Divine council meetings", 
+          "Real agent spawning",
+          "Tool allocation via Vulcan",
+          "Session persistence"
+        ]
+      }
+    }
+  }
+}
