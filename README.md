@@ -1,6 +1,8 @@
 # 🏛️ Pantheon - AI Development Team in Your Terminal
 
 > Transform ideas into working software through conversation. No coding required.
+> 
+> **⚡ Powered by Claude-Flow**: Real AI agents build your project, not templates!
 
 ## The Problem We Solve
 
@@ -87,15 +89,26 @@ Start simple, evolve naturally:
 - **Experiment freely** with zero risk
 - **Ship projects** you're proud of
 
+## Installation & Setup
+
+```bash
+# Clone Pantheon
+git clone https://github.com/bacoco/pantheon.git
+cd pantheon
+
+# Install dependencies
+npm install
+
+# Install Claude-Flow (REQUIRED)
+node install-claude-flow.js
+```
+
+**⚠️ Important**: Claude-Flow is now mandatory. Pantheon uses real AI agents to build your project, not templates.
+
 ## See It In Action
 
 ```bash
-# Install Pantheon
-git clone https://github.com/bacoco/pantheon.git
-cd pantheon
-npm install
-
-# Start building
+# Start building with AI agents
 /gods init "I want to create a recipe sharing platform for home cooks"
 ```
 

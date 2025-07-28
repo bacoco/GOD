@@ -6,14 +6,20 @@
 import chalk from 'chalk';
 import { ConversationState } from '../conversation-state.js';
 import { ConversationalInterface } from '../conversational-interface.js';
-import { ProjectGenerator } from '../project-generator.js';
+// Project generation now handled exclusively by Claude-Flow agents
 
 export class InitCommand {
   constructor(pantheon) {
     this.pantheon = pantheon;
     this.state = new ConversationState();
     this.conversation = new ConversationalInterface();
-    this.generator = new ProjectGenerator();
+    
+    // Claude-Flow is now required - no fallbacks
+    if (!pantheon || !pantheon.claudeFlowBridge) {
+      throw new Error('Claude-Flow is required. Please ensure Claude-Flow is installed in ./claude-flow directory.');
+    }
+    
+    this.activeAgents = new Map();
   }
 
   /**
@@ -122,12 +128,8 @@ export class InitCommand {
       if (proceed.toLowerCase() === 'yes' || proceed.toLowerCase() === 'y') {
         console.log(chalk.blue('\n[Zeus]: ') + 'Excellent! The gods will now begin crafting your vision into reality.\n');
         
-        // Transition to Hephaestus for building
-        await this.conversation.showTransition('Zeus', 'Hephaestus', 
-          "I'll hand this over to Hephaestus, our master builder. He'll transform these plans into working code.");
-        
-        // Generate project structure
-        await this.generator.generateProject(session, projectData);
+        // Always use Claude-Flow agents - no fallbacks
+        await this.buildWithClaudeFlow(session, projectData);
         
         console.log(chalk.green('\n✨ Your project has been created!'));
         console.log(chalk.gray('\nNext steps:'));
@@ -151,6 +153,156 @@ export class InitCommand {
     } finally {
       this.conversation.close();
     }
+  }
+
+  /**
+   * Build project using Claude-Flow agents
+   * @param {Object} session - Current session
+   * @param {Object} projectData - Project data from conversation
+   */
+  async buildWithClaudeFlow(session, projectData) {
+    console.log(chalk.blue('\n🏛️ Summoning the divine council to build your project...\n'));
+    
+    try {
+      // Create Zeus orchestrator agent
+      const zeusConfig = {
+        name: 'zeus-project-orchestrator',
+        type: 'orchestrator',
+        tools: ['Task', 'TodoWrite', 'Memory', 'Read', 'Write', 'Edit'],
+        instructions: this.createZeusInstructions(projectData),
+        purpose: 'Orchestrate the creation of the project'
+      };
+      
+      const zeusAgent = await this.pantheon.createClaudeFlowAgent('zeus', zeusConfig);
+      this.activeAgents.set('zeus', zeusAgent);
+      
+      // Subscribe to progress updates
+      this.subscribeToProgress(zeusAgent.id, 'Zeus');
+      
+      // Show initial orchestration
+      console.log(chalk.blue('[Zeus]: ') + 'I will now coordinate the gods to build your vision:\n');
+      console.log(chalk.gray('  • Daedalus will design the architecture'));
+      console.log(chalk.gray('  • Hephaestus will implement the code'));
+      console.log(chalk.gray('  • Apollo will create the user interface'));
+      console.log(chalk.gray('  • Themis will ensure quality with tests\n'));
+      
+      // Execute the orchestration
+      const orchestrationTask = {
+        type: 'project-creation',
+        projectData: projectData,
+        sessionId: session.id,
+        requirements: {
+          architecture: true,
+          implementation: true,
+          ui: projectData.design || projectData.plan?.includes('UI'),
+          testing: true,
+          documentation: true
+        }
+      };
+      
+      console.log(chalk.gray('\n[Starting divine orchestration...]\n'));
+      
+      // Execute Zeus's orchestration
+      const result = await zeusAgent.execute(orchestrationTask);
+      
+      // Zeus will spawn other gods as needed through the Task tool
+      // The progress will be shown via subscriptions
+      
+      // Store the generated project info
+      await this.state.updateContext({
+        claudeFlowExecution: {
+          orchestrator: zeusAgent.id,
+          result: result,
+          timestamp: Date.now()
+        }
+      });
+      
+      // Generate project files based on agent results
+      await this.generateProjectFromAgentWork(session, projectData, result);
+      
+    } catch (error) {
+      console.error(chalk.red('\n❌ Error during Claude-Flow execution:'), error.message);
+      throw new Error(`Claude-Flow agent execution failed: ${error.message}. Please check Claude-Flow installation.`);
+    }
+  }
+
+  /**
+   * Create instructions for Zeus orchestrator
+   * @param {Object} projectData - Project data
+   * @returns {string} Instructions
+   */
+  createZeusInstructions(projectData) {
+    const { discovery, plan, design } = projectData;
+    
+    return `You are Zeus, the supreme orchestrator of the Pantheon. Your task is to coordinate the creation of a new project.
+
+Project Vision: ${discovery.projectIdea}
+
+Requirements gathered from conversation:
+- Target Users: ${discovery.users}
+- Core Feature: ${discovery.core_feature}
+- User Experience: ${discovery.experience}
+${plan ? `- MVP Features: ${plan.mvp_features}` : ''}
+${plan ? `- Success Metrics: ${plan.success_metrics || 'User satisfaction'}` : ''}
+${design ? `- Design Style: ${design.visual_style}` : ''}
+
+Your orchestration approach:
+1. Create a comprehensive todo list for the project
+2. Spawn Daedalus to design the system architecture
+3. Spawn Hephaestus to implement the backend and core logic
+4. Spawn Apollo to create the user interface (if needed)
+5. Spawn Themis to write tests
+6. Coordinate their work and ensure quality
+
+Use the Task tool to spawn each god with specific instructions.
+Use TodoWrite to track progress.
+Use Memory to store important decisions and context.
+Use Read/Write/Edit to manage project files.
+
+Remember: You are orchestrating real work, not just planning. Each god should produce actual code and documentation.`;
+  }
+
+  /**
+   * Subscribe to agent progress updates
+   * @param {string} agentId - Agent ID
+   * @param {string} godName - God name for display
+   */
+  subscribeToProgress(agentId, godName) {
+    this.pantheon.subscribeToAgentProgress(agentId, (progress) => {
+      if (progress.type === 'progress') {
+        console.log(chalk.gray(`[${godName}]: ${progress.message || 'Working...'}`));
+      } else if (progress.type === 'complete') {
+        console.log(chalk.green(`✓ ${godName} has completed their task`));
+      } else if (progress.type === 'error') {
+        console.log(chalk.red(`✗ ${godName} encountered an error: ${progress.error}`));
+      }
+    });
+  }
+
+  /**
+   * Generate project files from agent work
+   * @param {Object} session - Session data
+   * @param {Object} projectData - Project data
+   * @param {Object} agentResult - Result from agent execution
+   */
+  async generateProjectFromAgentWork(session, projectData, agentResult) {
+    // Claude-Flow agents must create files directly
+    if (!agentResult || !agentResult.filesCreated || agentResult.filesCreated.length === 0) {
+      throw new Error('Claude-Flow agents did not create any project files. Agent execution may have failed.');
+    }
+    
+    console.log(chalk.green(`\n✅ Project files created by the gods:`));
+    agentResult.filesCreated.forEach(file => {
+      console.log(chalk.gray(`  • ${file}`));
+    });
+    
+    // Store project metadata for future reference
+    await this.state.updateContext({
+      projectGenerated: true,
+      filesCreated: agentResult.filesCreated,
+      generatedBy: 'claude-flow-agents',
+      timestamp: Date.now()
+    });
   }
 
   /**

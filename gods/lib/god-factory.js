@@ -202,31 +202,70 @@ export class GodFactory {
   }
 
   async createSubAgent(parentGod, type, specialization = {}) {
-    const subAgentId = `${parentGod.name}-${type}-${Date.now()}`;
+    // Claude-Flow is required for creating sub-agents
+    if (!this.pantheon || !this.pantheon.claudeFlowBridge) {
+      throw new Error('Claude-Flow is required for creating sub-agents. Please ensure Claude-Flow is installed.');
+    }
     
-    const subAgent = {
-      id: subAgentId,
-      type,
-      parentGod: parentGod.name,
-      specialization,
-      status: 'active',
-      createdAt: new Date(),
-      
-      // Agent methods
-      async execute(task) {
-        return await parentGod.executeSubAgentTask(subAgentId, task);
-      },
-      
-      async communicate(message) {
-        return await parentGod.handleSubAgentMessage(subAgentId, message);
-      },
-      
-      async terminate() {
-        parentGod.terminateSubAgent(subAgentId);
+    // Prepare agent configuration with god-specific instructions
+    const agentConfig = {
+      name: `${parentGod.name}-${type}-${Date.now()}`,
+      type: type,
+      tools: specialization.tools || [],
+      instructions: this.generateAgentInstructions(parentGod, type, specialization),
+      metadata: {
+        parentGod: parentGod.name,
+        specialization: specialization,
+        purpose: specialization.purpose || `Sub-agent for ${parentGod.name}`
       }
     };
     
-    return subAgent;
+    // Create the agent through PantheonCore's Claude-Flow integration
+    const agent = await this.pantheon.createClaudeFlowAgent(parentGod.name, agentConfig);
+    
+    // Enhance the agent with god-specific methods
+    agent.parentGod = parentGod.name;
+    agent.specialization = specialization;
+    
+    // Subscribe to progress updates
+    this.pantheon.subscribeToAgentProgress(agent.id, (progress) => {
+      parentGod.emit('subagent:progress', {
+        agentId: agent.id,
+        progress
+      });
+    });
+    
+    return agent;
+  }
+
+  /**
+   * Generate agent instructions based on parent god and specialization
+   * @param {Object} parentGod - The parent god
+   * @param {string} type - Agent type
+   * @param {Object} specialization - Agent specialization
+   * @returns {string} Agent instructions
+   */
+  generateAgentInstructions(parentGod, type, specialization) {
+    const baseInstructions = specialization.instructions || '';
+    
+    const godContext = `You are a specialized agent created by ${parentGod.name}, the ${parentGod.config.title || parentGod.name}.
+Your role is to ${specialization.purpose || `assist with ${type} tasks`}.
+
+Parent God Context:
+${parentGod.config.description || ''}
+
+Your Specialization:
+${specialization.description || `Focused on ${type} tasks`}
+
+${baseInstructions}
+
+Remember to:
+- Work within the scope defined by ${parentGod.name}
+- Report progress regularly
+- Collaborate with other agents when needed
+- Follow the divine principles of the Pantheon`;
+
+    return godContext;
   }
 
   capitalize(str) {

@@ -2,6 +2,52 @@
 
 ## Common Issues and Solutions
 
+### Claude-Flow Issues (REQUIRED)
+
+#### "Claude-Flow is required but not installed"
+**Problem**: Pantheon now requires Claude-Flow for all operations. Template fallbacks have been removed.
+
+**Solution**:
+```bash
+# Install Claude-Flow
+node install-claude-flow.js
+
+# Or manually:
+cd claude-flow
+npm install
+cd ..
+```
+
+#### "Claude-Flow binary not found"
+**Problem**: Claude-Flow is installed but the binary is not accessible.
+
+**Solution**:
+```bash
+# Check if binary exists
+ls claude-flow/bin/claude-flow
+
+# Make it executable
+chmod +x claude-flow/bin/claude-flow
+
+# Test it works
+./claude-flow/bin/claude-flow --version
+```
+
+#### "Failed to initialize Claude-Flow Bridge"
+**Problem**: Claude-Flow is installed but not working properly.
+
+**Solution**:
+```bash
+# Reinstall Claude-Flow dependencies
+cd claude-flow
+rm -rf node_modules package-lock.json
+npm install
+cd ..
+
+# Test Claude-Flow directly
+./claude-flow/bin/claude-flow --version
+```
+
 ### Installation Issues
 
 #### "Cannot find module" errors

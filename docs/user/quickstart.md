@@ -18,12 +18,14 @@ cd pantheon
 # Install dependencies
 npm install
 
-# Install Claude-Flow dependencies
-cd claude-flow && npm install && cd ..
+# Install Claude-Flow (REQUIRED - No fallbacks!)
+node install-claude-flow.js
 
 # Install Gods plugin dependencies
 cd gods && npm install && cd ..
 ```
+
+**⚠️ Important**: Claude-Flow is now mandatory. Pantheon no longer uses template-based generation - all projects are built by real AI agents.
 
 ## First Launch
 

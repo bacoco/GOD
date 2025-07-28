@@ -6,14 +6,18 @@
 import chalk from 'chalk';
 import { ConversationState } from '../conversation-state.js';
 import { ConversationalInterface } from '../conversational-interface.js';
-import { ProjectGenerator } from '../project-generator.js';
+// Project generation now handled exclusively by Claude-Flow agents
 
 export class ResumeCommand {
   constructor(pantheon) {
     this.pantheon = pantheon;
     this.state = new ConversationState();
     this.conversation = new ConversationalInterface();
-    this.generator = new ProjectGenerator();
+    
+    // Claude-Flow is now required - no fallbacks
+    if (!pantheon || !pantheon.claudeFlowBridge) {
+      throw new Error('Claude-Flow is required. Please ensure Claude-Flow is installed in ./claude-flow directory.');
+    }
   }
 
   /**
@@ -178,10 +182,27 @@ export class ResumeCommand {
     
     if (ready.toLowerCase() === 'yes' || ready.toLowerCase() === 'y') {
       await this.state.updatePhase('building');
-      await this.generator.generateProject(session, {
+      
+      // Use Claude-Flow to continue implementation
+      console.log(chalk.blue('\n🏛️ Summoning the gods to continue building...\n'));
+      
+      const projectData = {
         discovery: session.context.discovery,
         plan: session.context.plan,
         design: session.context.design
+      };
+      
+      const zeusConfig = {
+        name: 'zeus-resume-orchestrator',
+        type: 'orchestrator',
+        instructions: `Continue building the project based on existing plans.\n${JSON.stringify(projectData, null, 2)}`
+      };
+      
+      const zeusAgent = await this.pantheon.createClaudeFlowAgent('zeus', zeusConfig);
+      const result = await zeusAgent.execute({
+        type: 'resume-project',
+        projectData,
+        sessionId: session.id
       });
       
       console.log(chalk.green('\n✨ Project structure updated!'));

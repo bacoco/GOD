@@ -1,6 +1,10 @@
 import { EventEmitter } from 'events';
 import { GodFactory } from './god-factory.js';
 import { DivineMessenger } from './divine-messenger.js';
+import { getClaudeFlowBridge } from './claude-flow-bridge.js';
+import { AgentSpawner } from './agent-spawner.js';
+import { ContextManager } from './context-manager.js';
+import { ensureClaudeFlow, getClaudeFlowPath } from './ensure-claude-flow.js';
 import { readdir } from 'fs/promises';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -15,14 +19,20 @@ export class PantheonCore extends EventEmitter {
     this.emit = options.emit || this.emit.bind(this);
     this.meta = options.meta || {};
     
+    // Claude-Flow Bridge is required
+    this.claudeFlowBridge = null;
+    
     // Core components
     this.godFactory = new GodFactory(this);
     this.divineMessenger = new DivineMessenger(this);
+    this.agentSpawner = null; // Initialize after bridge is ready
+    this.contextManager = null; // Initialize after bridge is ready
     
     // State management
     this.gods = new Map();
     this.activeWorkflows = new Map();
     this.godConfigs = new Map();
+    this.activeAgents = new Map(); // Track active Claude-Flow agents
     
     // Tool assignments
     this.toolAssignments = {
@@ -50,6 +60,28 @@ export class PantheonCore extends EventEmitter {
   async initialize() {
     this.emit('pantheon:initializing');
     
+    // Ensure Claude-Flow is installed
+    ensureClaudeFlow();
+    
+    // Initialize Claude-Flow Bridge (required)
+    try {
+      this.claudeFlowBridge = getClaudeFlowBridge({
+        claudeFlowPath: getClaudeFlowPath(),
+        enableRealAgents: true,
+        streamProgress: true,
+        parallelExecution: true
+      });
+      await this.claudeFlowBridge.initialize();
+      
+      // Initialize agent spawner and context manager
+      this.agentSpawner = new AgentSpawner(this);
+      this.contextManager = new ContextManager(this);
+      
+      this.emit('pantheon:claude-flow-connected');
+    } catch (error) {
+      throw new Error(`Failed to initialize Claude-Flow: ${error.message}. Please ensure Claude-Flow is installed in ./claude-flow directory.`);
+    }
+    
     // Load god configurations
     await this.loadGodConfigurations();
     
@@ -61,7 +93,8 @@ export class PantheonCore extends EventEmitter {
     
     this.emit('pantheon:initialized', {
       totalGods: this.godConfigs.size,
-      availableGods: Array.from(this.godConfigs.keys())
+      availableGods: Array.from(this.godConfigs.keys()),
+      claudeFlowEnabled: true
     });
   }
 
@@ -233,8 +266,106 @@ export class PantheonCore extends EventEmitter {
     }
   }
 
+  /**
+   * Get the Claude-Flow path
+   * @returns {string} Path to Claude-Flow
+   */
+  getClaudeFlowPath() {
+    // Try to find Claude-Flow path
+    if (this.claudeFlow && this.claudeFlow.__dirname) {
+      return this.claudeFlow.__dirname;
+    }
+    return join(__dirname, '../../claude-flow');
+  }
+
+  /**
+   * Create a Claude-Flow agent for a god
+   * @param {string} godName - Name of the god
+   * @param {Object} config - Agent configuration
+   * @returns {Object} Created agent or fallback object
+   */
+  async createClaudeFlowAgent(godName, config) {
+    if (!this.claudeFlowBridge) {
+      throw new Error('Claude-Flow is required but not initialized. Please ensure Claude-Flow is installed.');
+    }
+
+    const agent = await this.claudeFlowBridge.createAgentForGod(godName, config);
+    
+    // Track the agent
+    if (!this.activeAgents.has(godName)) {
+      this.activeAgents.set(godName, new Set());
+    }
+    this.activeAgents.get(godName).add(agent.id);
+    
+    return agent;
+  }
+
+
+  /**
+   * Execute a task using Claude-Flow if available
+   * @param {string} godName - God requesting the task
+   * @param {Object} task - Task configuration
+   * @returns {Object} Task result
+   */
+  async executeClaudeFlowTask(godName, task) {
+    if (!this.claudeFlowBridge) {
+      throw new Error('Claude-Flow is required but not initialized. Please ensure Claude-Flow is installed.');
+    }
+
+    return await this.claudeFlowBridge.executeTask(godName, task);
+  }
+
+  /**
+   * Subscribe to agent progress updates
+   * @param {string} agentId - Agent to monitor
+   * @param {Function} callback - Progress callback
+   */
+  subscribeToAgentProgress(agentId, callback) {
+    if (!this.claudeFlowBridge) {
+      throw new Error('Claude-Flow is required but not initialized.');
+    }
+
+    this.claudeFlowBridge.subscribeToAgentProgress(agentId, callback);
+  }
+
+  /**
+   * Get all agents created by a god
+   * @param {string} godName - Name of the god
+   * @returns {Array} Agent IDs
+   */
+  getGodAgents(godName) {
+    if (!this.claudeFlowBridge) {
+      throw new Error('Claude-Flow is required but not initialized.');
+    }
+    
+    return this.claudeFlowBridge.getGodAgents(godName);
+  }
+
+  /**
+   * Access Claude-Flow memory
+   * @param {string} key - Memory key
+   * @param {*} value - Value to store (optional)
+   * @returns {*} Memory value
+   */
+  async accessMemory(key, value = undefined) {
+    if (!this.claudeFlowBridge) {
+      throw new Error('Claude-Flow is required but not initialized.');
+    }
+
+    return await this.claudeFlowBridge.accessMemory(key, value);
+  }
+
   async shutdown() {
     this.emit('pantheon:shutting-down');
+    
+    // Shutdown Claude-Flow Bridge
+    if (this.claudeFlowBridge) {
+      try {
+        await this.claudeFlowBridge.shutdown();
+      } catch (error) {
+        console.warn('Error shutting down Claude-Flow Bridge:', error.message);
+      }
+    }
     
     // Dismiss all gods
     for (const [godName, god] of this.gods) {
@@ -245,6 +376,7 @@ export class PantheonCore extends EventEmitter {
     // Clear state
     this.gods.clear();
     this.activeWorkflows.clear();
+    this.activeAgents.clear();
     
     // Shutdown components
     await this.divineMessenger.shutdown();
