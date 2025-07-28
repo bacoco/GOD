@@ -6,7 +6,11 @@
 import chalk from 'chalk';
 import { ConversationState } from '../conversation-state.js';
 import { ConversationalInterface } from '../conversational-interface.js';
-// Project generation now handled exclusively by Claude-Flow agents
+import { AgentSpecGenerator } from '../agent-spec-generator.js';
+import { ToolAllocator } from '../tool-allocator.js';
+import { AgentComposer } from '../agent-composer.js';
+import { MDPersistenceManager } from '../md-persistence-manager.js';
+// Project generation now handled exclusively by Claude-Flow agents with custom MD generation
 
 export class InitCommand {
   constructor(pantheon) {
@@ -20,6 +24,14 @@ export class InitCommand {
     }
     
     this.activeAgents = new Map();
+    
+    // Initialize MD generation pipeline components
+    this.specGenerator = new AgentSpecGenerator();
+    this.toolAllocator = new ToolAllocator();
+    this.agentComposer = new AgentComposer(pantheon.claudeFlowBridge.claudeFlowPath);
+    this.mdPersistence = new MDPersistenceManager({
+      basePath: pantheon.claudeFlowBridge.claudeFlowPath + '/.claude/agents'
+    });
   }
 
   /**
@@ -156,73 +168,156 @@ export class InitCommand {
   }
 
   /**
-   * Build project using Claude-Flow agents
+   * Build project using Claude-Flow agents with custom MD generation
    * @param {Object} session - Current session
    * @param {Object} projectData - Project data from conversation
    */
   async buildWithClaudeFlow(session, projectData) {
     console.log(chalk.blue('\n🏛️ Summoning the divine council to build your project...\n'));
+    console.log(chalk.gray('Generating custom agent configurations based on your requirements...\n'));
     
     try {
-      // Create Zeus orchestrator agent
-      const zeusConfig = {
-        name: 'zeus-project-orchestrator',
-        type: 'orchestrator',
-        tools: ['Task', 'TodoWrite', 'Memory', 'Read', 'Write', 'Edit'],
-        instructions: this.createZeusInstructions(projectData),
-        purpose: 'Orchestrate the creation of the project'
-      };
+      // Initialize MD generation pipeline
+      await this.agentComposer.initialize();
+      await this.mdPersistence.initialize();
       
-      const zeusAgent = await this.pantheon.createClaudeFlowAgent('zeus', zeusConfig);
-      this.activeAgents.set('zeus', zeusAgent);
+      // Set project context for MD persistence
+      const projectId = session.id || 'pantheon-' + Date.now();
+      this.mdPersistence.setProject(projectId, projectData.discovery.projectIdea);
       
-      // Subscribe to progress updates
-      this.subscribeToProgress(zeusAgent.id, 'Zeus');
+      // Step 1: Generate agent specifications based on PRD
+      console.log(chalk.gray('[1/5] Analyzing requirements and generating agent specifications...'));
+      const agentSpecs = await this.specGenerator.generateSpecs(projectData);
+      console.log(chalk.green(`✓ Generated ${agentSpecs.length} specialized agent specifications`));
       
-      // Show initial orchestration
-      console.log(chalk.blue('[Zeus]: ') + 'I will now coordinate the gods to build your vision:\n');
-      console.log(chalk.gray('  • Daedalus will design the architecture'));
-      console.log(chalk.gray('  • Hephaestus will implement the code'));
-      console.log(chalk.gray('  • Apollo will create the user interface'));
-      console.log(chalk.gray('  • Themis will ensure quality with tests\n'));
+      // Step 2: Process each agent spec through the MD pipeline
+      const customAgents = [];
       
-      // Execute the orchestration
+      for (const spec of agentSpecs) {
+        console.log(chalk.gray(`\n[2/5] Processing ${spec.displayName}...`));
+        
+        // Allocate tools based on capabilities
+        console.log(chalk.gray(`  • Allocating tools from 87 MCP tools...`));
+        const allocatedTools = await this.toolAllocator.allocateTools(spec);
+        spec.tools = allocatedTools;
+        console.log(chalk.gray(`  • Allocated ${allocatedTools.length} specialized tools`));
+        
+        // Compose hybrid agent from base agents
+        console.log(chalk.gray(`  • Composing from ${spec.baseAgents.length} base agents...`));
+        const composedAgent = await this.agentComposer.compose(spec);
+        console.log(chalk.gray(`  • Created hybrid agent with ${composedAgent.capabilities.length} capabilities`));
+        
+        // Save custom MD file
+        console.log(chalk.gray(`  • Generating custom MD configuration...`));
+        const mdPath = await this.mdPersistence.saveAgentMD(composedAgent, {
+          projectSpecific: true,
+          createSymlink: true
+        });
+        console.log(chalk.green(`  ✓ Saved custom agent: ${mdPath}`));
+        
+        customAgents.push({
+          spec: composedAgent,
+          mdPath: mdPath,
+          godName: spec.specialization?.parentGod || spec.name
+        });
+      }
+      
+      // Step 3: Spawn agents using custom MD files
+      console.log(chalk.gray('\n[3/5] Spawning divine agents with custom configurations...\n'));
+      
+      // Start with Zeus orchestrator
+      const zeusAgent = customAgents.find(a => a.godName === 'zeus');
+      if (!zeusAgent) {
+        throw new Error('Zeus orchestrator specification not found');
+      }
+      
+      // Spawn Zeus using custom MD
+      const zeusInstance = await this.pantheon.claudeFlowBridge.spawnAgentFromMD(zeusAgent.mdPath, {
+        sessionId: session.id,
+        projectData: projectData
+      });
+      
+      this.activeAgents.set('zeus', zeusInstance);
+      this.subscribeToProgress(zeusInstance.id, 'Zeus');
+      
+      console.log(chalk.blue('[Zeus]: ') + 'I have been configured specifically for your project!\n');
+      console.log(chalk.blue('[Zeus]: ') + 'My divine capabilities include:\n');
+      zeusAgent.spec.capabilities.slice(0, 5).forEach(cap => {
+        console.log(chalk.gray(`  • ${cap}`));
+      });
+      
+      // Show orchestration plan
+      console.log(chalk.blue('\n[Zeus]: ') + 'I will coordinate the following gods:\n');
+      customAgents.forEach(agent => {
+        if (agent.godName !== 'zeus') {
+          const god = agent.spec;
+          console.log(chalk.gray(`  • ${god.displayName}: ${god.specialization?.focus || god.description}`));
+        }
+      });
+      
+      // Step 4: Execute orchestration with custom agents
+      console.log(chalk.gray('\n[4/5] Initiating divine orchestration...\n'));
+      
+      // Create orchestration task with references to custom MD files
       const orchestrationTask = {
         type: 'project-creation',
         projectData: projectData,
         sessionId: session.id,
+        customAgents: customAgents.map(a => ({
+          name: a.spec.name,
+          mdPath: a.mdPath,
+          godName: a.godName,
+          capabilities: a.spec.capabilities,
+          tools: a.spec.tools
+        })),
         requirements: {
           architecture: true,
           implementation: true,
-          ui: projectData.design || projectData.plan?.includes('UI'),
+          ui: projectData.design || projectData.plan?.mvp_features?.includes('UI'),
           testing: true,
           documentation: true
         }
       };
       
-      console.log(chalk.gray('\n[Starting divine orchestration...]\n'));
-      
       // Execute Zeus's orchestration
-      const result = await zeusAgent.execute(orchestrationTask);
+      const result = await zeusInstance.execute(orchestrationTask);
       
-      // Zeus will spawn other gods as needed through the Task tool
-      // The progress will be shown via subscriptions
+      // Zeus will spawn other gods using the custom MD files
       
-      // Store the generated project info
+      // Step 5: Track and monitor progress
+      console.log(chalk.gray('\n[5/5] Monitoring divine creation...\n'));
+      
+      // Store execution info
       await this.state.updateContext({
         claudeFlowExecution: {
-          orchestrator: zeusAgent.id,
+          orchestrator: zeusInstance.id,
+          customAgents: customAgents.map(a => ({
+            name: a.spec.name,
+            mdPath: a.mdPath,
+            capabilities: a.spec.capabilities.length,
+            tools: a.spec.tools.length
+          })),
+          mdGenerationPipeline: true,
           result: result,
           timestamp: Date.now()
         }
+      });
+      
+      // List created MD files
+      console.log(chalk.green('\n✅ Custom agent configurations created:'));
+      customAgents.forEach(agent => {
+        console.log(chalk.gray(`  • ${agent.spec.displayName}: ${agent.mdPath}`));
       });
       
       // Generate project files based on agent results
       await this.generateProjectFromAgentWork(session, projectData, result);
       
     } catch (error) {
-      console.error(chalk.red('\n❌ Error during Claude-Flow execution:'), error.message);
-      throw new Error(`Claude-Flow agent execution failed: ${error.message}. Please check Claude-Flow installation.`);
+      console.error(chalk.red('\n❌ Error during MD generation pipeline:'), error.message);
+      if (process.env.DEBUG) {
+        console.error(error);
+      }
+      throw new Error(`MD generation pipeline failed: ${error.message}`);
     }
   }
 

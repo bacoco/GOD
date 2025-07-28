@@ -131,11 +131,31 @@ Watch as your idea transforms into:
 
 ## The Technology Behind the Magic
 
-Pantheon leverages:
-- **Advanced AI orchestration** for intelligent task distribution
-- **Specialized language models** for each development domain
-- **Context-aware collaboration** between AI agents
-- **Progressive code generation** that evolves with your needs
+### 🚀 The Core Innovation: PRD → Custom AI Agents
+
+Pantheon doesn't use generic templates. Instead, it:
+
+1. **Extracts requirements** through natural conversation
+2. **Generates custom AI agents** specific to YOUR project
+3. **Allocates tools** from 87 specialized capabilities
+4. **Composes hybrid agents** from 54 base types
+5. **Creates persistent configurations** for consistent execution
+
+```
+Your Idea → Conversation → PRD → Custom MD Files → Specialized AI Team
+```
+
+Each project gets its own unique AI development team, configured precisely for your needs:
+- **Zeus** gets orchestration tools specific to your architecture
+- **Hephaestus** receives backend tools matching your tech stack
+- **Apollo** gets UI tools for your design requirements
+- **Specialized gods** emerge based on your needs (Hermes for real-time, Athena for AI, etc.)
+
+This is powered by:
+- **Conversational PRD extraction** for understanding intent
+- **Intelligent agent composition** merging multiple AI capabilities
+- **Dynamic tool allocation** from the complete MCP toolkit
+- **MD-based persistence** for reproducible configurations
 
 ## Start Building Today
 
@@ -162,7 +182,7 @@ Software creation shouldn't be limited to programmers. With Pantheon, if you can
 
 ---
 
-📖 **Documentation**: [User Guide](docs/user/guide.md) | [Examples](docs/user/examples.md) | [Developer Docs](docs/developer/guide.md)
+📖 **Documentation**: [Examples](docs/EXAMPLES.md) | [User Guide](docs/USER_GUIDE.md) | [Developer Guide](docs/DEVELOPER_GUIDE.md)
 
 🤝 **Community**: [GitHub Issues](https://github.com/bacoco/pantheon/issues) | [Discussions](https://github.com/bacoco/pantheon/discussions)
 

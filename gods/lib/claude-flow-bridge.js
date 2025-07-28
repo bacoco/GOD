@@ -192,6 +192,116 @@ export class ClaudeFlowBridge extends EventEmitter {
   }
 
   /**
+   * Spawn an agent from a custom MD file
+   * @param {string} mdPath - Path to the custom MD file
+   * @param {Object} context - Context for the agent
+   * @returns {Object} The spawned agent
+   */
+  async spawnAgentFromMD(mdPath, context = {}) {
+    if (!this.initialized) {
+      throw new Error('Bridge not initialized. Call initialize() first.');
+    }
+    
+    if (!existsSync(mdPath)) {
+      throw new Error(`MD file not found: ${mdPath}`);
+    }
+    
+    // Extract agent name from MD path
+    const mdFileName = path.basename(mdPath, '.md');
+    const agentName = mdFileName.replace(/^(custom-|project-[^-]+-|template-)/, '');
+    
+    try {
+      // Use sparc command to spawn from MD file
+      const args = [
+        'sparc',
+        'run',
+        agentName,
+        `"Load and execute from custom MD: ${mdPath}"`,
+        '--md-file', mdPath,
+        '--parallel',
+        '--output', 'json'
+      ];
+      
+      // Add context as environment variables
+      const env = {
+        ...process.env,
+        NODE_ENV: 'production',
+        PANTHEON_SESSION_ID: context.sessionId || '',
+        PANTHEON_PROJECT_DATA: JSON.stringify(context.projectData || {})
+      };
+      
+      // Spawn the agent process
+      const agentProcess = spawn(this.claudeFlowBin, args, {
+        cwd: this.claudeFlowPath,
+        env: env,
+        detached: false
+      });
+      
+      const agentId = `${agentName}-md-${Date.now()}`;
+      
+      // Track the agent
+      const godName = this.extractGodFromAgentName(agentName);
+      if (!this.godAgents.has(godName)) {
+        this.godAgents.set(godName, new Set());
+      }
+      this.godAgents.get(godName).add(agentId);
+      this.agentToGod.set(agentId, godName);
+      this.activeProcesses.set(agentId, agentProcess);
+      
+      // Set up event streaming
+      this.setupProcessStreaming(agentId, agentProcess);
+      
+      this.emit('bridge:agent-spawned-from-md', {
+        agentId,
+        mdPath,
+        agentName,
+        godName
+      });
+      
+      // Return agent interface
+      return {
+        id: agentId,
+        name: agentName,
+        godName,
+        mdPath,
+        execute: async (task) => this.executeAgentTask(agentId, task),
+        terminate: async () => this.terminateAgent(agentId)
+      };
+      
+    } catch (error) {
+      this.emit('bridge:spawn-error', { mdPath, error });
+      throw error;
+    }
+  }
+
+  /**
+   * Extract god name from agent name
+   * @param {string} agentName - Agent name
+   * @returns {string} God name
+   */
+  extractGodFromAgentName(agentName) {
+    const godPatterns = {
+      zeus: /zeus|orchestrat/i,
+      daedalus: /daedalus|architect/i,
+      hephaestus: /hephaestus|backend|developer/i,
+      apollo: /apollo|ui|designer/i,
+      themis: /themis|quality|test/i,
+      hermes: /hermes|realtime|coordinat/i,
+      aegis: /aegis|security/i,
+      athena: /athena|ai|ml/i,
+      prometheus: /prometheus|plan/i
+    };
+    
+    for (const [god, pattern] of Object.entries(godPatterns)) {
+      if (pattern.test(agentName)) {
+        return god;
+      }
+    }
+    
+    return 'unknown';
+  }
+
+  /**
    * Execute a task using an agent
    * @param {string} agentId - Agent ID
    * @param {Object} task - Task configuration
